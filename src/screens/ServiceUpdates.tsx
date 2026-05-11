@@ -101,7 +101,7 @@ export default function ServiceUpdates() {
 
   return (
     <div className="min-h-full" style={{ background: 'var(--surface-primary)' }}>
-      <NavHeader title="Service Updates" showMenu />
+      <NavHeader title="Service Alerts" showMenu />
 
       <div className="px-5">
         {saved.length > 0 && (

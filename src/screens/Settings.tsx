@@ -65,7 +65,7 @@ function Divider() {
 }
 
 export default function Settings() {
-  const { darkMode, setDarkMode, prestoConnected, setPrestoConnected } = useNav()
+  const { darkMode, setDarkMode, prestoConnected, setPrestoConnected, navigate } = useNav()
   const [notifications, setNotifications] = useState(true)
   const [haptics, setHaptics] = useState(true)
   const [largeText, setLargeText] = useState(false)
@@ -109,14 +109,14 @@ export default function Settings() {
           icon={CreditCardIcon}
           label="Saved Cards"
           subtitle="Visa •••• 4242"
-          onClick={() => {}}
+          onClick={() => navigate('savedCards')}
         />
         <Divider />
         <SettingsRow
           icon={WalletIcon}
           label="Payment History"
           subtitle="View past transactions"
-          onClick={() => {}}
+          onClick={() => navigate('paymentHistory')}
         />
       </SectionCard>
 
@@ -134,7 +134,7 @@ export default function Settings() {
           icon={AccessibilityIcon}
           label="Accessibility Features"
           subtitle="Screen reader, high contrast"
-          onClick={() => {}}
+          onClick={() => navigate('accessibility')}
         />
         <Divider />
         <SettingsRow
@@ -176,11 +176,16 @@ export default function Settings() {
 
       <div className="px-5 pb-3">
         <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', textAlign: 'center', lineHeight: 1.5 }}>
-          GO Transit Concept App v4.0
+          GO Transit Concept App v4.1
         </p>
-        <p style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', textAlign: 'center', marginTop: 2, opacity: 0.7 }}>
+        <a
+          href="https://jamesibitoye.framer.website"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', textAlign: 'center', marginTop: 2, opacity: 0.7, display: 'block', textDecoration: 'none' }}
+        >
           Designed by James Ibitoye
-        </p>
+        </a>
       </div>
 
       <div className="h-8" />

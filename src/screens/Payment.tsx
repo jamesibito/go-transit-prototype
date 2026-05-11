@@ -1,13 +1,16 @@
 import { useState } from 'react'
 import { useNav } from '../App'
-import { ChevronLeft, CheckIcon, LockIcon, PlusIcon2, TrainIcon, PrestoLogo } from '../components/Icons'
+import { ChevronLeft, ChevronRight, CheckIcon, LockIcon, PlusIcon2, TrainIcon, PrestoLogo } from '../components/Icons'
 import { ROUTES } from '../data/trips'
 
 type PaymentMethod = 'presto' | 'visa' | 'new'
 
 export default function Payment() {
-  const { goBack, navigate, prestoConnected, selectedRoute } = useNav()
+  const { goBack, navigate, prestoConnected, setPrestoConnected, selectedRoute, purchaseType, showToast } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
+  const isPass = purchaseType === 'pass'
+  const displayPrice = isPass ? '$10.00' : route.eTicketPrice
+  const displayLabel = isPass ? 'One-Day Pass' : 'E-Ticket'
   const [selected, setSelected] = useState<PaymentMethod>(prestoConnected ? 'presto' : 'visa')
   const [saveCard, setSaveCard] = useState(true)
   const [processing, setProcessing] = useState(false)
@@ -40,13 +43,20 @@ export default function Payment() {
             </div>
           </div>
           <div className="px-4 py-3" style={{ background: 'var(--surface-card)' }}>
-            <div className="flex items-center justify-between mb-1">
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{route.from} → {route.to}</span>
-            </div>
+            {!isPass && (
+              <div className="flex items-center justify-between mb-1">
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{route.from} → {route.to}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
-              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>E-Ticket · 1 Adult</span>
-              <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{route.eTicketPrice}</span>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{displayLabel} · 1 Adult</span>
+              <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{displayPrice}</span>
             </div>
+            {isPass && (
+              <div className="flex items-center justify-between mt-1">
+                <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>All zones · Unlimited rides</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -188,15 +198,24 @@ export default function Payment() {
         </div>
       )}
 
-      {/* Not connected hint */}
+      {/* Not connected hint — tappable to connect inline */}
       {!prestoConnected && (
         <div className="px-5 pb-4">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}>
+          <button
+            className="pressable w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left"
+            style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}
+            onClick={() => {
+              setPrestoConnected(true)
+              setSelected('presto')
+              showToast('PRESTO Connected', 'Card •••• 4821 linked successfully')
+            }}
+          >
             <PrestoLogo size={16} />
-            <p style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit', fontWeight: 600, flex: 1 }}>
-              Connect PRESTO in Settings to save on fares
+            <p style={{ fontSize: 13, color: '#357a1e', fontFamily: 'inherit', fontWeight: 700, flex: 1 }}>
+              Connect PRESTO to save {route.prestoSavings}
             </p>
-          </div>
+            <ChevronRight size={16} color="#357a1e" />
+          </button>
         </div>
       )}
 
@@ -226,11 +245,11 @@ export default function Payment() {
           ) : (
             <>
               <LockIcon size={16} color="white" strokeWidth={2.5} />
-              Pay {route.eTicketPrice}
+              Pay {displayPrice}
             </>
           )}
         </button>
-        <p className="text-center mt-3 flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+        <p className="text-center mt-5 flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
           <LockIcon size={11} color="var(--text-muted)" strokeWidth={2} />
           Secured with 256-bit encryption
         </p>

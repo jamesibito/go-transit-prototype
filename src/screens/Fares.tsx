@@ -21,7 +21,7 @@ function Toggle({ on, onToggle }: ToggleProps) {
 }
 
 function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: () => void }) {
-  const { navigate } = useNav()
+  const { navigate, setPurchaseType } = useNav()
 
   if (type === 'passes') {
     return (
@@ -52,7 +52,7 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
         <button
           className="pressable w-full py-4 rounded-2xl mb-2.5"
           style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, color: 'white', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
-          onClick={() => navigate('payment')}
+          onClick={() => { setPurchaseType('pass'); navigate('payment') }}
         >
           Buy Pass — $10.00
         </button>
@@ -105,7 +105,7 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
       <button
         className="pressable w-full py-4 rounded-2xl mb-2.5"
         style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, color: 'white', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
-        onClick={() => navigate('payment')}
+        onClick={() => { setPurchaseType('eticket'); navigate('payment') }}
       >
         Buy E-Ticket — $9.05
       </button>

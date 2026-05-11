@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNav } from '../App'
-import { TrainIcon, CheckCircleIcon } from '../components/Icons'
+import { TrainIcon } from '../components/Icons'
 
 function QRCode() {
   const rows = 11
@@ -55,41 +55,18 @@ function CheckAnimation() {
   )
 }
 
-function WalletToast({ visible }: { visible: boolean }) {
-  return (
-    <div style={{
-      position: 'fixed', top: 60, left: 20, right: 20, zIndex: 100,
-      background: '#357a1e', borderRadius: 16, padding: '14px 20px',
-      display: 'flex', alignItems: 'center', gap: 12,
-      transform: visible ? 'translateY(0)' : 'translateY(-120px)',
-      opacity: visible ? 1 : 0,
-      transition: 'transform 350ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease',
-      boxShadow: '0 8px 32px rgba(53,122,30,0.35)',
-    }}>
-      <CheckCircleIcon size={22} color="white" strokeWidth={2} />
-      <div>
-        <p style={{ fontSize: 14, fontWeight: 800, color: 'white', fontFamily: 'inherit' }}>Added to Apple Wallet</p>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'inherit' }}>Your ticket is ready to use</p>
-      </div>
-    </div>
-  )
-}
-
 export default function TicketConfirmation() {
-  const { navigate } = useNav()
+  const { navigate, showToast } = useNav()
   const [walletAdded, setWalletAdded] = useState(false)
-  const [toastVisible, setToastVisible] = useState(false)
 
   const handleAddWallet = () => {
     if (walletAdded) return
     setWalletAdded(true)
-    setToastVisible(true)
-    setTimeout(() => setToastVisible(false), 2500)
+    showToast('Added to Apple Wallet', 'Your ticket is ready to use')
   }
 
   return (
     <div className="min-h-full flex flex-col pt-4" style={{ background: 'var(--surface-primary)' }}>
-      <WalletToast visible={toastVisible} />
 
       <div className="flex-1 flex flex-col items-center px-5">
         <CheckAnimation />

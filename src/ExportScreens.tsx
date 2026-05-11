@@ -74,6 +74,10 @@ function ScreenWithContext({ children, route = 'stouffville', dark = false }: { 
     setPrestoConnected: noop as (on: boolean) => void,
     selectedRoute: route,
     setSelectedRoute: noop as (key: string) => void,
+    purchaseType: 'eticket' as const,
+    setPurchaseType: noop as (type: 'eticket' | 'pass') => void,
+    showToast: noop as (message: string, subtitle?: string, duration?: number) => void,
+    toast: { message: '', visible: false },
   }
 
   return (

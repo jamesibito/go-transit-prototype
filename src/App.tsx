@@ -9,9 +9,13 @@ import TicketConfirmation from './screens/TicketConfirmation'
 import Payment from './screens/Payment'
 import AboutGO from './screens/AboutGO'
 import Settings from './screens/Settings'
+import PaymentHistory from './screens/PaymentHistory'
+import SavedCards from './screens/SavedCards'
+import AccessibilityFeatures from './screens/AccessibilityFeatures'
 import MenuDrawer from './components/MenuDrawer'
+import StatusBar from './components/StatusBar'
 
-export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings'
+export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility'
 
 export interface SavedLine {
   id: string
@@ -19,6 +23,12 @@ export interface SavedLine {
   to: string
   line: string
   muted: boolean
+}
+
+export interface ToastData {
+  message: string
+  subtitle?: string
+  visible: boolean
 }
 
 interface NavContextType {
@@ -40,13 +50,17 @@ interface NavContextType {
   setPrestoConnected: (on: boolean) => void
   selectedRoute: string
   setSelectedRoute: (key: string) => void
+  purchaseType: 'eticket' | 'pass'
+  setPurchaseType: (type: 'eticket' | 'pass') => void
+  showToast: (message: string, subtitle?: string, duration?: number) => void
+  toast: ToastData
 }
 
 export const NavContext = createContext<NavContextType>({} as NavContextType)
 export const useNav = () => useContext(NavContext)
 
 const SCREEN_DEPTH: Record<ScreenName, number> = {
-  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1,
+  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2,
 }
 
 const DEFAULT_SAVED_LINES: SavedLine[] = [
@@ -63,6 +77,13 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false)
   const [prestoConnected, setPrestoConnected] = useState(false)
   const [selectedRoute, setSelectedRoute] = useState('stouffville')
+  const [purchaseType, setPurchaseType] = useState<'eticket' | 'pass'>('eticket')
+  const [toast, setToast] = useState<ToastData>({ message: '', visible: false })
+
+  const showToast = useCallback((message: string, subtitle?: string, duration = 2500) => {
+    setToast({ message, subtitle, visible: true })
+    setTimeout(() => setToast(prev => ({ ...prev, visible: false })), duration)
+  }, [])
 
   const currentScreen = stack[stack.length - 1]
 
@@ -97,7 +118,7 @@ export default function App() {
     setSavedLines(prev => prev.filter(l => l.id !== id))
   }, [])
 
-  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings']
+  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility']
   const screenNodes: Record<ScreenName, React.ReactNode> = {
     landing: <Landing />,
     search: <SearchTrip />,
@@ -109,6 +130,9 @@ export default function App() {
     ticketConfirmation: <TicketConfirmation />,
     about: <AboutGO />,
     settings: <Settings />,
+    paymentHistory: <PaymentHistory />,
+    savedCards: <SavedCards />,
+    accessibility: <AccessibilityFeatures />,
   }
 
   const currentDepth = SCREEN_DEPTH[currentScreen]
@@ -122,22 +146,12 @@ export default function App() {
       darkMode, setDarkMode,
       prestoConnected, setPrestoConnected,
       selectedRoute, setSelectedRoute,
+      purchaseType, setPurchaseType,
+      showToast, toast,
     }}>
       <div className={`phone-shell${darkMode ? ' dark' : ''}`}>
         {/* Status bar — fixed layer above all content */}
-        <div className="status-bar">
-          <span style={{ fontSize: 15, fontWeight: 700, fontFamily: 'inherit', letterSpacing: '-0.2px' }}>9:41</span>
-          <div className="flex items-center gap-1.5">
-            <svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="4" width="3" height="8" rx="0.8" fill="currentColor"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="0.8" fill="currentColor"/><rect x="9" y="1" width="3" height="11" rx="0.8" fill="currentColor"/><rect x="13.5" y="0" width="3" height="12" rx="0.8" fill="currentColor" opacity="0.25"/></svg>
-            <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.5C10.2 2.5 12.2 3.4 13.6 4.9L15 3.5C13.2 1.4 10.7 0.1 8 0.1C5.3 0.1 2.8 1.4 1 3.5L2.4 4.9C3.8 3.4 5.8 2.5 8 2.5Z" fill="currentColor"/><path d="M8 5.5C9.5 5.5 10.8 6.1 11.8 7.1L13.2 5.7C11.8 4.2 9.9 3.5 8 3.5C6.1 3.5 4.2 4.3 2.8 5.7L4.2 7.1C5.2 6.1 6.5 5.5 8 5.5Z" fill="currentColor"/><circle cx="8" cy="10" r="1.8" fill="currentColor"/></svg>
-            <div className="flex items-center">
-              <div style={{ width: 25, height: 12, borderRadius: 3, border: '1.5px solid currentColor', opacity: 0.45, padding: '1.5px', display: 'flex', alignItems: 'center' }}>
-                <div style={{ width: '85%', height: '100%', borderRadius: 1.5, background: 'currentColor' }}/>
-              </div>
-              <div style={{ width: 2, height: 5, borderRadius: '0 1px 1px 0', background: 'currentColor', opacity: 0.35, marginLeft: 1 }}/>
-            </div>
-          </div>
-        </div>
+        <StatusBar />
 
         {/* Screen stack */}
         {screens.map(name => {
@@ -167,6 +181,26 @@ export default function App() {
             </div>
           )
         })}
+
+        {/* Global toast — above scroll containers so always visible */}
+        <div style={{
+          position: 'absolute', top: 56, left: 20, right: 20, zIndex: 150,
+          background: '#357a1e', borderRadius: 16, padding: '14px 20px',
+          display: 'flex', alignItems: 'center', gap: 12,
+          transform: toast.visible ? 'translateY(0)' : 'translateY(-120px)',
+          opacity: toast.visible ? 1 : 0,
+          transition: 'transform 350ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease',
+          boxShadow: '0 8px 32px rgba(53,122,30,0.35)',
+          pointerEvents: toast.visible ? 'auto' : 'none',
+        }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 800, color: 'white', fontFamily: 'inherit' }}>{toast.message}</p>
+            {toast.subtitle && <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'inherit' }}>{toast.subtitle}</p>}
+          </div>
+        </div>
 
         <MenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
       </div>

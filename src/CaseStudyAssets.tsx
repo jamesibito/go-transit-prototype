@@ -50,7 +50,7 @@ function HeroAsset() {
             <defs><clipPath id="go-hero"><path d="m-23-11h46v22h-46zM23 1v-2h-34v-10h-2v22h2V1z"/></clipPath></defs>
             <path clipPath="url(#go-hero)" fill="#357a1e" d="m-1 0a11 11 0 1 0-11 11h11zm2 0a1 1 0 0 0 22 0A1 1 0 0 0 1 0z"/>
           </svg>
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#357a1e', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Mobile App Redesign</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#357a1e', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Mobile App Design</span>
         </div>
         <h1 style={{ fontSize: 42, fontWeight: 900, color: '#1a1d21', lineHeight: 1.1, letterSpacing: '-1px', marginBottom: 20 }}>
           Simplifying daily transit for 70M+ riders

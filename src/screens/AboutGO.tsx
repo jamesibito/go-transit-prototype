@@ -8,10 +8,10 @@ const stats = [
 ]
 
 const links = [
-  { label: 'GO Transit Website', url: 'gotransit.com' },
-  { label: 'Trip Planning Tools', url: 'gotransit.com/trip-planning' },
-  { label: 'PRESTO Card Info', url: 'prestocard.ca' },
-  { label: 'Accessibility Services', url: 'gotransit.com/accessibility' },
+  { label: 'GO Transit Website', display: 'gotransit.com', url: 'https://www.gotransit.com' },
+  { label: 'Trip Planning Tools', display: 'gotransit.com/trip-planning', url: 'https://www.gotransit.com/en/trip-planning' },
+  { label: 'PRESTO Card Info', display: 'prestocard.ca', url: 'https://www.prestocard.ca' },
+  { label: 'Accessibility Services', display: 'gotransit.com/accessibility', url: 'https://www.gotransit.com/en/travelling-with-us/accessibility' },
 ]
 
 export default function AboutGO() {
@@ -54,18 +54,25 @@ export default function AboutGO() {
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', marginBottom: 8 }}>About This App</h3>
             <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'inherit', lineHeight: 1.6 }}>
               This is a concept design of the GO Transit mobile experience, created as a UX case study to explore
-              improvements in trip planning, fare purchasing, and real-time service information.
+              improvements in trip planning, fare purchasing, and real-time service information for riders.
             </p>
           </div>
           <div style={{ height: 1, background: 'var(--border-color)' }} />
           <div className="px-5 py-3 flex items-center justify-between" style={{ background: 'var(--surface-secondary)' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>Version</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>4.0.0</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>4.1.0</span>
           </div>
           <div style={{ height: 1, background: 'var(--border-color)' }} />
           <div className="px-5 py-3 flex items-center justify-between" style={{ background: 'var(--surface-secondary)' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>Designed by</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>James Ibitoye</span>
+            <a
+              href="https://jamesibitoye.framer.website"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', textDecoration: 'none' }}
+            >
+              James Ibitoye
+            </a>
           </div>
           <div style={{ height: 1, background: 'var(--border-color)' }} />
           <div className="px-5 py-3 flex items-center justify-between" style={{ background: 'var(--surface-secondary)' }}>
@@ -91,16 +98,22 @@ export default function AboutGO() {
           {links.map((link, i) => (
             <div key={link.label}>
               {i > 0 && <div style={{ height: 1, background: 'var(--border-color)', marginLeft: 52 }} />}
-              <button className="pressable w-full flex items-center gap-3 px-4 py-3.5 text-left" style={{ background: 'var(--surface-primary)' }}>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pressable w-full flex items-center gap-3 px-4 py-3.5 text-left"
+                style={{ background: 'var(--surface-primary)', textDecoration: 'none', display: 'flex' }}
+              >
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--surface-green-soft)' }}>
                   <GlobeIcon size={18} color="#357a1e" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{link.label}</p>
-                  <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{link.url}</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{link.display}</p>
                 </div>
                 <ExternalLinkIcon size={16} color="var(--text-muted)" />
-              </button>
+              </a>
             </div>
           ))}
         </div>
@@ -109,7 +122,7 @@ export default function AboutGO() {
       {/* Legal */}
       <div className="px-5 pb-3">
         <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', textAlign: 'center', lineHeight: 1.5 }}>
-          This app is an independent concept design and is not affiliated with, endorsed by, or connected to Metrolinx or GO Transit. There is no native GO Transit mobile app.
+          This app is an independent concept design and is not affiliated with, endorsed by, or connected to Metrolinx or GO Transit. There is currently no native GO Transit mobile app.
         </p>
       </div>
 

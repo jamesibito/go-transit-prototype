@@ -5,7 +5,7 @@ const navItems = [
   { label: 'Home', screen: 'landing' as const, Icon: HomeIcon },
   { label: 'Trip Planning', screen: 'search' as const, Icon: MapIcon },
   { label: 'Fares', screen: 'fares' as const, Icon: FaresIcon },
-  { label: 'Service Updates', screen: 'serviceUpdates' as const, Icon: ServiceUpdatesIcon },
+  { label: 'Service Alerts', screen: 'serviceUpdates' as const, Icon: ServiceUpdatesIcon },
   { label: 'About', screen: 'about' as const, Icon: InfoIcon },
   { label: 'Settings', screen: 'settings' as const, Icon: SettingsIcon },
 ]
@@ -87,11 +87,16 @@ export default function MenuDrawer({ open, onClose }: MenuDrawerProps) {
         <div className="mt-auto px-6 pb-12">
           <div style={{ width: 60, height: 3, background: 'rgba(255,255,255,0.2)', borderRadius: 2 }} />
           <p style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'inherit' }}>
-            GO Transit Concept App · v4.0
+            GO Transit Concept App · v4.1
           </p>
-          <p style={{ marginTop: 4, fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'inherit' }}>
+          <a
+            href="https://jamesibitoye.framer.website"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginTop: 4, fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'inherit', textDecoration: 'none', display: 'block' }}
+          >
             Designed by James Ibitoye
-          </p>
+          </a>
         </div>
       </div>
     </>

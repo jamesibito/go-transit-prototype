@@ -1,0 +1,258 @@
+import { useState, useEffect, useRef } from 'react'
+import { useNav } from '../App'
+import { MenuHamburger, GOLogo, ArrowRight, TrainIcon, ClockIcon, MoreVerticalIcon, BellOffIcon, BellIcon, TrashIcon, FaresIcon, AlertIcon } from '../components/Icons'
+
+function getNextDepartures() {
+  const now = new Date()
+  const hour = now.getHours()
+  const min = now.getMinutes()
+  const departures = []
+  let h = hour
+  let m = min + (10 - (min % 10)) + 4
+  if (m >= 60) { m -= 60; h += 1 }
+  for (let i = 0; i < 3; i++) {
+    const depH = h + Math.floor((m + i * 60) / 60)
+    const depM = (m + i * 60) % 60
+    if (depH >= 24) break
+    const arrH = depH + Math.floor((depM + 35) / 60)
+    const arrM = (depM + 35) % 60
+    const fmtTime = (hh: number, mm: number) => {
+      const period = hh >= 12 ? 'PM' : 'AM'
+      const h12 = hh % 12 || 12
+      return `${h12}:${mm.toString().padStart(2, '0')} ${period}`
+    }
+    const depDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), depH, depM)
+    const minsAway = Math.round((depDate.getTime() - now.getTime()) / 60000)
+    departures.push({
+      departure: fmtTime(depH, depM),
+      arrival: fmtTime(arrH, arrM),
+      minsAway: Math.max(1, minsAway),
+      from: 'Miliken GO',
+      to: 'Union Station GO',
+      line: 'Stouffville',
+    })
+  }
+  return departures
+}
+
+function NextDepartureCard({ onTap }: { onTap: () => void }) {
+  const [departures, setDepartures] = useState(getNextDepartures)
+  const next = departures[0]
+
+  useEffect(() => {
+    const id = setInterval(() => setDepartures(getNextDepartures()), 30000)
+    return () => clearInterval(id)
+  }, [])
+
+  if (!next) return null
+
+  return (
+    <button onClick={onTap} className="pressable w-full text-left rounded-2xl overflow-hidden" style={{ background: 'var(--surface-primary)', border: '1.5px solid var(--border-green)', boxShadow: '0 2px 12px rgba(53,122,30,0.08)' }}>
+      <div className="px-5 pt-4 pb-3 flex items-start gap-3.5">
+        <div className="shrink-0 mt-0.5">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: '#357a1e' }}>
+            <TrainIcon size={22} color="white" />
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span style={{ fontSize: 11, fontWeight: 800, color: '#357a1e', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Next Train</span>
+            <span className="flex items-center gap-1" style={{ fontSize: 11, fontWeight: 800, color: '#357a1e', background: 'var(--surface-green-light)', borderRadius: 8, padding: '2px 8px', fontFamily: 'inherit' }}>
+              <ClockIcon size={11} color="#357a1e" strokeWidth={2.5} />
+              {next.minsAway} min
+            </span>
+          </div>
+          <p style={{ fontSize: 20, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>
+            {next.departure} – {next.arrival}
+          </p>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'inherit', marginTop: 2, fontWeight: 600 }}>
+            {next.from} → {next.to}
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 1 }}>Stouffville Line</p>
+        </div>
+      </div>
+      {departures.length > 1 && (
+        <div className="px-5 pb-3.5 pt-3 flex gap-4" style={{ borderTop: '1px solid var(--surface-green-light)' }}>
+          {departures.slice(1).map((d, i) => (
+            <span key={i} style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit', fontWeight: 600 }}>
+              Also: {d.departure} ({d.minsAway} min)
+            </span>
+          ))}
+        </div>
+      )}
+    </button>
+  )
+}
+
+function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string; to: string; line: string; muted: boolean }) {
+  const { navigate, toggleMuteLine, removeSavedLine } = useNav()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
+  return (
+    <div className="relative">
+      <div
+        className="w-full text-left rounded-2xl px-4 py-4 flex items-center gap-3"
+        style={{ minHeight: 72, background: 'var(--surface-card)', border: '1px solid var(--border-color)' }}
+      >
+        <button className="pressable flex items-center gap-3 flex-1 min-w-0" onClick={() => navigate('results')}>
+          <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-green-light)' }}>
+            <TrainIcon size={20} color="#357a1e" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="truncate flex items-center gap-2" style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>
+              {from} → {to}
+              {muted && (
+                <BellOffIcon size={14} color="var(--text-muted)" strokeWidth={2} />
+              )}
+            </div>
+            <div className="mt-0.5 truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>
+              {line}
+            </div>
+          </div>
+        </button>
+        <button
+          className="pressable shrink-0 w-8 h-8 flex items-center justify-center rounded-full"
+          style={{ background: menuOpen ? 'var(--surface-green-light)' : 'transparent' }}
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
+        >
+          <MoreVerticalIcon size={18} color="var(--text-muted)" strokeWidth={2.5} />
+        </button>
+      </div>
+
+      {/* Dropdown menu */}
+      {menuOpen && (
+        <div ref={menuRef} className="absolute right-4 z-20 rounded-xl overflow-hidden"
+          style={{
+            top: '100%', marginTop: -4,
+            background: 'var(--surface-primary)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08)',
+            border: '1px solid var(--border-color)',
+            minWidth: 200,
+          }}>
+          <button
+            className="pressable w-full flex items-center gap-3 px-4 py-3 text-left"
+            style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'inherit' }}
+            onClick={() => { toggleMuteLine(id); setMenuOpen(false) }}
+          >
+            {muted ? <BellIcon size={18} color="#357a1e" strokeWidth={2} /> : <BellOffIcon size={18} color="var(--text-muted)" strokeWidth={2} />}
+            {muted ? 'Unmute Notifications' : 'Mute Notifications'}
+          </button>
+          <div style={{ height: 1, background: 'var(--border-color)' }} />
+          <button
+            className="pressable w-full flex items-center gap-3 px-4 py-3 text-left"
+            style={{ fontSize: 14, fontWeight: 600, color: '#dc2626', fontFamily: 'inherit' }}
+            onClick={() => { removeSavedLine(id); setMenuOpen(false) }}
+          >
+            <TrashIcon size={18} color="#dc2626" strokeWidth={2} />
+            Remove from Saved
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function Landing() {
+  const { navigate, openMenu, savedLines } = useNav()
+
+  return (
+    <div className="min-h-full" style={{ background: 'var(--surface-primary)' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-2 pb-2">
+        <button className="pressable w-11 h-11 flex items-center justify-center -ml-2 rounded-full" onClick={openMenu}>
+          <MenuHamburger size={22} color="var(--text-primary)" strokeWidth={2.5} />
+        </button>
+        <GOLogo size={28} color="#357a1e" />
+        <div className="w-11" />
+      </div>
+
+      {/* Greeting */}
+      <div className="px-6 pt-3 pb-2">
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Good morning</p>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.5px', marginTop: 2 }}>Where are you headed?</h1>
+      </div>
+
+      {/* Next Departure */}
+      <div className="px-5 pt-2 pb-4">
+        <NextDepartureCard onTap={() => navigate('results')} />
+      </div>
+
+      {/* New Trip CTA */}
+      <div className="px-5 pb-4">
+        <button
+          className="pressable w-full flex items-center justify-between px-5 py-4 rounded-2xl"
+          style={{ background: '#357a1e', boxShadow: '0 4px 20px rgba(53,122,30,0.3)' }}
+          onClick={() => navigate('search')}
+        >
+          <span style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: 'inherit', letterSpacing: '-0.2px' }}>Plan a New Trip</span>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.18)' }}>
+            <ArrowRight size={20} color="white" strokeWidth={2.5} />
+          </div>
+        </button>
+      </div>
+
+      {/* Quick links */}
+      <div className="px-5 pb-4 flex gap-2.5">
+        <button
+          className="pressable flex-1 py-3 px-4 rounded-xl text-center flex items-center justify-center gap-2"
+          style={{ background: 'var(--surface-green-soft)', fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', border: '1px solid var(--border-green)' }}
+          onClick={() => navigate('fares')}
+        >
+          <FaresIcon size={15} color="#357a1e" strokeWidth={2} />
+          Fares
+        </button>
+        <button
+          className="pressable flex-1 py-3 px-4 rounded-xl text-center flex items-center justify-center gap-2"
+          style={{ background: 'var(--surface-green-soft)', fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', border: '1px solid var(--border-green)' }}
+          onClick={() => navigate('serviceUpdates')}
+        >
+          <AlertIcon size={15} color="#357a1e" strokeWidth={2} />
+          Alerts
+        </button>
+      </div>
+
+      {/* Divider */}
+      <div className="px-6">
+        <div style={{ height: 1, background: 'var(--border-color)' }} />
+      </div>
+
+      {/* Saved Trips */}
+      <div className="px-5 pt-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>
+            Saved Trips
+          </h2>
+          <button className="pressable" onClick={() => navigate('search')} style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>
+            View all
+          </button>
+        </div>
+        <div className="flex flex-col gap-2.5">
+          {savedLines.length > 0 ? (
+            savedLines.map(line => (
+              <SavedLineCard key={line.id} {...line} />
+            ))
+          ) : (
+            <div className="rounded-2xl px-5 py-6 text-center" style={{ background: 'var(--surface-secondary)', border: '1px dashed var(--border-color)' }}>
+              <p style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit' }}>No saved trips yet</p>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4, opacity: 0.7 }}>Star a trip to save it here for quick access</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="h-8" />
+    </div>
+  )
+}

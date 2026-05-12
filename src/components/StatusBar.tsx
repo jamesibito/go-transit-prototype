@@ -1,13 +1,32 @@
 /**
  * Realistic iOS 17+ Status Bar
  * Pixel-accurate signal, WiFi, and battery icons matching Apple's HIG.
+ * Live clock updates every minute.
  */
+import { useState, useEffect } from 'react'
+
+function useCurrentTime() {
+  const fmt = () => {
+    const d = new Date()
+    let h = d.getHours()
+    const m = d.getMinutes().toString().padStart(2, '0')
+    h = h % 12 || 12
+    return `${h}:${m}`
+  }
+  const [time, setTime] = useState(fmt)
+  useEffect(() => {
+    const id = setInterval(() => setTime(fmt()), 15_000) // update every 15s for responsiveness
+    return () => clearInterval(id)
+  }, [])
+  return time
+}
 
 export default function StatusBar() {
+  const time = useCurrentTime()
   return (
     <div className="status-bar">
       <span style={{ fontSize: 15, fontWeight: 600, fontFamily: '-apple-system, "SF Pro Text", "Helvetica Neue", sans-serif', letterSpacing: '-0.3px' }}>
-        9:41
+        {time}
       </span>
       <div className="flex items-center gap-[7px]">
         {/* Cellular signal bars — iOS style: 4 rounded bars with progressive heights */}

@@ -13,10 +13,11 @@ import PaymentHistory from './screens/PaymentHistory'
 import SavedCards from './screens/SavedCards'
 import AccessibilityFeatures from './screens/AccessibilityFeatures'
 import SavedTrips from './screens/SavedTrips'
+import Account from './screens/Account'
 import MenuDrawer from './components/MenuDrawer'
 import StatusBar from './components/StatusBar'
 
-export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips'
+export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips' | 'account'
 
 export interface SavedLine {
   id: string
@@ -87,7 +88,7 @@ export const NavContext = createContext<NavContextType>({} as NavContextType)
 export const useNav = () => useContext(NavContext)
 
 const SCREEN_DEPTH: Record<ScreenName, number> = {
-  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2, savedTrips: 1,
+  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2, savedTrips: 1, account: 2,
 }
 
 const DEFAULT_SAVED_LINES: SavedLine[] = [
@@ -150,7 +151,7 @@ export default function App() {
     setSavedLines(prev => prev.filter(l => l.id !== id))
   }, [])
 
-  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility', 'savedTrips']
+  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility', 'savedTrips', 'account']
   const screenNodes: Record<ScreenName, React.ReactNode> = {
     landing: <Landing />,
     search: <SearchTrip />,
@@ -166,6 +167,7 @@ export default function App() {
     savedCards: <SavedCards />,
     accessibility: <AccessibilityFeatures />,
     savedTrips: <SavedTrips />,
+    account: <Account />,
   }
 
   const currentDepth = SCREEN_DEPTH[currentScreen]

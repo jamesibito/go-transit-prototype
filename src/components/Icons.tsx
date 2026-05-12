@@ -46,6 +46,14 @@ export {
   Plus as PlusIcon2,
   Check as CheckIcon,
   Lock as LockIcon,
+  User as UserIcon,
+  Mail as MailIcon,
+  Phone as PhoneIcon,
+  MapPin as MapPinIcon,
+  Calendar as CalendarIcon,
+  Camera as CameraIcon,
+  LogOut as LogOutIcon,
+  Pencil as PencilIcon,
 } from 'lucide-react'
 
 export function PrestoLogo({ size = 20 }: { size?: number }) {

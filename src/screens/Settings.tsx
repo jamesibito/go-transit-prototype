@@ -75,6 +75,24 @@ export default function Settings() {
     <div className="min-h-full" style={{ background: 'var(--surface-secondary)' }}>
       <NavHeader title="Settings" showMenu />
 
+      {/* Account profile card */}
+      <div className="px-5 pb-5">
+        <button
+          className="pressable w-full rounded-2xl px-4 py-4 flex items-center gap-3.5 text-left"
+          style={{ background: 'var(--surface-primary)', border: '1px solid var(--border-color)' }}
+          onClick={() => navigate('account')}
+        >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ background: '#357a1e' }}>
+            <span style={{ fontSize: 18, fontWeight: 900, color: 'white', fontFamily: 'inherit' }}>JI</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>James Ibitoye</p>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 1 }}>View account details</p>
+          </div>
+          <ChevronRight size={18} color="var(--text-muted)" />
+        </button>
+      </div>
+
       <SectionCard title="Appearance">
         <SettingsRow
           icon={darkMode ? MoonIcon : SunIcon}
@@ -177,7 +195,7 @@ export default function Settings() {
 
       <div className="px-5 pb-3">
         <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', textAlign: 'center', lineHeight: 1.5 }}>
-          GO Transit Concept App v4.2.2
+          GO Transit Concept App v4.3
         </p>
         <a
           href="https://jamesibitoye.framer.website"

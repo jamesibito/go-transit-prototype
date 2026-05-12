@@ -165,7 +165,7 @@ export default function AccessibilityFeatures() {
         <SettingsRow
           icon={VolumeIcon}
           label="Voice Announcements"
-          subtitle="Speak upcoming stops aloud"
+          subtitle="Say upcoming stops aloud"
           right={<Toggle on={voiceAnnouncements} onToggle={() => setVoiceAnnouncements(!voiceAnnouncements)} />}
         />
       </SectionCard>

@@ -1,11 +1,11 @@
-import { MenuClose, HomeIcon, MapIcon, FaresIcon, ServiceUpdatesIcon, InfoIcon, SettingsIcon } from './Icons'
+import { MenuClose, HomeIcon, MapIcon, FaresIcon, AlertIcon, InfoIcon, SettingsIcon } from './Icons'
 import { useNav } from '../App'
 
 const navItems = [
   { label: 'Home', screen: 'landing' as const, Icon: HomeIcon },
   { label: 'Trip Planning', screen: 'search' as const, Icon: MapIcon },
   { label: 'Fares', screen: 'fares' as const, Icon: FaresIcon },
-  { label: 'Service Alerts', screen: 'serviceUpdates' as const, Icon: ServiceUpdatesIcon },
+  { label: 'Service Alerts', screen: 'serviceUpdates' as const, Icon: AlertIcon },
   { label: 'About', screen: 'about' as const, Icon: InfoIcon },
   { label: 'Settings', screen: 'settings' as const, Icon: SettingsIcon },
 ]

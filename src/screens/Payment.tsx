@@ -9,9 +9,9 @@ export default function Payment() {
   const { goBack, navigate, prestoConnected, setPrestoConnected, selectedRoute, purchaseType, showToast, prestoBalance, setPrestoBalance } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const isPass = purchaseType === 'pass'
-  const displayPrice = isPass ? '$10.00' : route.eTicketPrice
   const displayLabel = isPass ? 'One-Day Pass' : 'E-Ticket'
   const [selected, setSelected] = useState<PaymentMethod>(prestoConnected ? 'presto' : 'visa')
+  const displayPrice = selected === 'presto' ? (isPass ? '$10.00' : route.prestoPrice) : (isPass ? '$10.00' : route.eTicketPrice)
   const [saveCard, setSaveCard] = useState(true)
   const [processing, setProcessing] = useState(false)
 
@@ -254,7 +254,7 @@ export default function Payment() {
             </>
           )}
         </button>
-        <p className="text-center mt-8 flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', opacity: 0.7 }}>
+        <p className="text-center mt-14 flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', opacity: 0.6 }}>
           <LockIcon size={11} color="var(--text-muted)" strokeWidth={2} />
           Secured with 256-bit encryption
         </p>

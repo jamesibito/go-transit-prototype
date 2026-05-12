@@ -80,6 +80,8 @@ const SCREEN_DEPTH: Record<ScreenName, number> = {
 const DEFAULT_SAVED_LINES: SavedLine[] = [
   { id: 'sl-1', from: 'Miliken GO', to: 'Union Station GO', line: 'Stouffville', muted: false },
   { id: 'sl-2', from: 'Union Station GO', to: 'Miliken GO', line: 'Stouffville', muted: false },
+  { id: 'sl-3', from: 'Union Station GO', to: 'Oshawa GO', line: 'Lakeshore East', muted: false },
+  { id: 'sl-4', from: 'Mississauga City Centre', to: 'Markham Stouffville Hospital', line: 'Highway 407 Bus', muted: true },
 ]
 
 export default function App() {

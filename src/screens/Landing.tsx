@@ -100,21 +100,26 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
+  const isBus = line.toLowerCase().includes('bus')
+
   return (
     <div className="relative">
       <div
         className="w-full text-left rounded-2xl px-4 py-4 flex items-center gap-3"
-        style={{ minHeight: 72, background: 'var(--surface-card)', border: '1px solid var(--border-color)' }}
+        style={{ minHeight: 72, background: 'var(--surface-card)', border: '1px solid var(--border-color)', opacity: muted ? 0.6 : 1, transition: 'opacity 200ms ease' }}
       >
         <button className="pressable flex items-center gap-3 flex-1 min-w-0" onClick={() => navigate('results')}>
           <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-green-light)' }}>
-            <TrainIcon size={20} color="#357a1e" />
+            {isBus ? <BusIcon size={20} color="#357a1e" /> : <TrainIcon size={20} color="#357a1e" />}
           </div>
           <div className="flex-1 min-w-0">
             <div className="truncate flex items-center gap-2" style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>
               {from} → {to}
               {muted && (
-                <BellOffIcon size={14} color="var(--text-muted)" strokeWidth={2} />
+                <span className="shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded" style={{ background: 'var(--surface-secondary)', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>
+                  <BellOffIcon size={10} color="var(--text-muted)" strokeWidth={2.5} />
+                  Muted
+                </span>
               )}
             </div>
             <div className="mt-0.5 truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>
@@ -310,6 +315,11 @@ export default function Landing() {
           <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>
             Saved Trips
           </h2>
+          {savedLines.length > 2 && (
+            <button className="pressable" onClick={() => navigate('search')}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>View All</span>
+            </button>
+          )}
         </div>
         <div className="flex flex-col gap-2.5">
           {savedLines.length > 0 ? (

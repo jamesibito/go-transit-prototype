@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNav } from '../App'
+import { useNav, type FareDetails } from '../App'
 import NavHeader from '../components/NavHeader'
 import SearchForm from '../components/SearchForm'
 import QuantitySelector from '../components/QuantitySelector'
@@ -21,12 +21,31 @@ function Toggle({ on, onToggle }: ToggleProps) {
   )
 }
 
-function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: () => void }) {
-  const { navigate, setPurchaseType, selectedRoute } = useNav()
+// Price multipliers: adults 100%, seniors 85%, youth 65%, children free
+function calcFare(basePrice: number, adults: number, seniors: number, youth: number, returnTrip: boolean): number {
+  const adultTotal = basePrice * adults
+  const seniorTotal = (basePrice * 0.85) * seniors
+  const youthTotal = (basePrice * 0.65) * youth
+  const subtotal = adultTotal + seniorTotal + youthTotal
+  return returnTrip ? subtotal * 2 : subtotal
+}
+
+function buildPassengerLabel(adults: number, seniors: number, youth: number, children: number): string {
+  const parts: string[] = []
+  if (adults > 0) parts.push(`${adults} Adult${adults > 1 ? 's' : ''}`)
+  if (seniors > 0) parts.push(`${seniors} Senior${seniors > 1 ? 's' : ''}`)
+  if (youth > 0) parts.push(`${youth} Youth`)
+  if (children > 0) parts.push(`${children} Child${children > 1 ? 'ren' : ''}`)
+  return parts.length > 0 ? parts.join(', ') : '1 Adult'
+}
+
+function FareResult({ type, onReset, fareInfo }: { type: 'eticket' | 'passes'; onReset: () => void; fareInfo: FareDetails }) {
+  const { navigate, setPurchaseType, setFareDetails, selectedRoute } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const isBus = selectedRoute === 'highway-407'
 
   if (type === 'passes') {
+    const passTotal = fareInfo.totalPrice
     return (
       <div className="px-5 pb-5">
         <div style={{ height: 1, background: 'var(--border-color)', marginBottom: 20, marginTop: 4 }} />
@@ -37,14 +56,14 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
           </div>
           <div>
             <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>Fare Calculated</p>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>Weekend One-Day Pass</p>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{fareInfo.passengerLabel}</p>
           </div>
         </div>
 
         <div className="rounded-2xl overflow-hidden mb-4" style={{ border: '1px solid var(--border-green)' }}>
           <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'var(--surface-green-soft)' }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>One-Day Pass × 1</span>
-            <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>$10.00</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{fareInfo.passengerLabel}</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>${passTotal.toFixed(2)}</span>
           </div>
           <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'var(--surface-card)' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>All zones included</span>
@@ -55,9 +74,9 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
         <button
           className="pressable w-full py-4 rounded-2xl mb-2.5"
           style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, color: 'white', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
-          onClick={() => { setPurchaseType('pass'); navigate('payment') }}
+          onClick={() => { setFareDetails(fareInfo); setPurchaseType('pass'); navigate('payment') }}
         >
-          Buy Pass — $10.00
+          Buy Pass — ${passTotal.toFixed(2)}
         </button>
         <button
           className="pressable w-full py-3 rounded-2xl"
@@ -70,6 +89,12 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
     )
   }
 
+  const basePrice = parseFloat(route.eTicketPrice.replace('$', ''))
+  const prestoBase = parseFloat(route.prestoPrice.replace('$', ''))
+  const total = fareInfo.totalPrice
+  const prestoTotal = calcFare(prestoBase, fareInfo.adults, fareInfo.seniors, fareInfo.youth, fareInfo.returnTrip)
+  const savings = total - prestoTotal
+
   return (
     <div className="px-5 pb-5">
       <div style={{ height: 1, background: 'var(--border-color)', marginBottom: 20, marginTop: 4 }} />
@@ -80,7 +105,7 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
         </div>
         <div>
           <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>Fare Calculated</p>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>E-Ticket · One Way</p>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>E-Ticket · {fareInfo.returnTrip ? 'Return' : 'One Way'}</p>
         </div>
       </div>
 
@@ -90,27 +115,52 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
           <span style={{ fontSize: 14, fontWeight: 800, color: 'white', fontFamily: 'inherit' }}>{route.line}</span>
         </div>
         <div className="px-4 py-3" style={{ background: 'var(--surface-card)' }}>
-          <div className="flex items-center justify-between mb-2">
-            <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>1 Adult</span>
-            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{route.eTicketPrice}</span>
-          </div>
+          {fareInfo.adults > 0 && (
+            <div className="flex items-center justify-between mb-1.5">
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{fareInfo.adults} Adult{fareInfo.adults > 1 ? 's' : ''} × ${basePrice.toFixed(2)}{fareInfo.returnTrip ? ' × 2' : ''}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>${(basePrice * fareInfo.adults * (fareInfo.returnTrip ? 2 : 1)).toFixed(2)}</span>
+            </div>
+          )}
+          {fareInfo.seniors > 0 && (
+            <div className="flex items-center justify-between mb-1.5">
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{fareInfo.seniors} Senior{fareInfo.seniors > 1 ? 's' : ''} × ${(basePrice * 0.85).toFixed(2)}{fareInfo.returnTrip ? ' × 2' : ''}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>${(basePrice * 0.85 * fareInfo.seniors * (fareInfo.returnTrip ? 2 : 1)).toFixed(2)}</span>
+            </div>
+          )}
+          {fareInfo.youth > 0 && (
+            <div className="flex items-center justify-between mb-1.5">
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{fareInfo.youth} Youth × ${(basePrice * 0.65).toFixed(2)}{fareInfo.returnTrip ? ' × 2' : ''}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>${(basePrice * 0.65 * fareInfo.youth * (fareInfo.returnTrip ? 2 : 1)).toFixed(2)}</span>
+            </div>
+          )}
+          {fareInfo.children > 0 && (
+            <div className="flex items-center justify-between mb-1.5">
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{fareInfo.children} Child{fareInfo.children > 1 ? 'ren' : ''}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>Free</span>
+            </div>
+          )}
+          {fareInfo.returnTrip && (
+            <div className="flex items-center gap-1.5 mb-2 mt-1">
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', background: 'var(--surface-green-soft)', borderRadius: 6, padding: '2px 8px' }}>Return trip included</span>
+            </div>
+          )}
           <div className="flex items-center justify-between" style={{ borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>Total</span>
-            <span style={{ fontSize: 20, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{route.eTicketPrice}</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>${total.toFixed(2)}</span>
           </div>
         </div>
         <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'var(--surface-green-soft)' }}>
           <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>PRESTO alternative</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>{route.prestoPrice} (save {route.prestoSavings})</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>${prestoTotal.toFixed(2)} (save ${savings.toFixed(2)})</span>
         </div>
       </div>
 
       <button
         className="pressable w-full py-4 rounded-2xl mb-2.5"
         style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, color: 'white', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
-        onClick={() => { setPurchaseType('eticket'); navigate('payment') }}
+        onClick={() => { setFareDetails(fareInfo); setPurchaseType('eticket'); navigate('payment') }}
       >
-        Buy E-Ticket — {route.eTicketPrice}
+        Buy E-Ticket — ${total.toFixed(2)}
       </button>
       <button
         className="pressable w-full py-3 rounded-2xl"
@@ -124,17 +174,40 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
 }
 
 export default function Fares() {
-  const { faresTab, setFaresTab } = useNav()
+  const { faresTab, setFaresTab, selectedRoute } = useNav()
+  const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const [returnTrip, setReturnTrip] = useState(false)
   const [fareCalculated, setFareCalculated] = useState(false)
+  const [adults, setAdults] = useState(1)
+  const [seniors, setSeniors] = useState(0)
+  const [youth, setYouth] = useState(0)
+  const [children, setChildren] = useState(0)
+  const [passQty, setPassQty] = useState(0)
 
   const isEticket = faresTab === 'eticket'
 
-  const handleReset = () => setFareCalculated(false)
+  const handleReset = () => {
+    setFareCalculated(false)
+    setAdults(1)
+    setSeniors(0)
+    setYouth(0)
+    setChildren(0)
+    setPassQty(0)
+    setReturnTrip(false)
+  }
   const handleTabSwitch = (tab: 'eticket' | 'passes') => {
     setFaresTab(tab)
     setFareCalculated(false)
   }
+
+  // Build fare info for result display
+  const basePrice = parseFloat(route.eTicketPrice.replace('$', ''))
+  const eticketTotal = calcFare(basePrice, adults, seniors, youth, returnTrip)
+  const passengerLabel = buildPassengerLabel(adults, seniors, youth, children)
+
+  const fareInfo: FareDetails = isEticket
+    ? { adults, seniors, youth, children, returnTrip, totalPrice: eticketTotal, passengerLabel }
+    : { adults: passQty || 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: (passQty || 1) * 10, passengerLabel: `One-Day Pass × ${passQty || 1}` }
 
   return (
     <div className="min-h-full" style={{ background: 'var(--surface-primary)' }}>
@@ -180,7 +253,7 @@ export default function Fares() {
         )}
 
         {fareCalculated ? (
-          <FareResult type={faresTab} onReset={handleReset} />
+          <FareResult type={faresTab} onReset={handleReset} fareInfo={fareInfo} />
         ) : isEticket ? (
           <div className="px-5 pb-5">
             <div className="mb-5 mt-2">
@@ -189,7 +262,7 @@ export default function Fares() {
                 <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>Return Trip</span>
               </div>
               <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', fontFamily: 'inherit', marginTop: 6, marginLeft: 51, lineHeight: 1.4 }}>
-                {returnTrip ? 'Same-day return included — no extra charge' : 'Add a same-day return to your fare'}
+                {returnTrip ? 'Fare doubled for same-day return' : 'Add a same-day return to your fare'}
               </p>
             </div>
 
@@ -198,17 +271,17 @@ export default function Fares() {
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', marginBottom: 16 }}>Passenger(s)</h3>
             <div className="flex flex-col gap-4">
               {[
-                { label: 'Adults', subtitle: 'Ages 13–64' },
-                { label: 'Senior', subtitle: 'Ages 65+' },
-                { label: 'Youth', subtitle: 'Ages 6–12' },
-                { label: 'Child', subtitle: 'Ages 0–5 (free)' },
-              ].map(({ label, subtitle }) => (
+                { label: 'Adults', subtitle: 'Ages 13–64', initial: 1, setter: setAdults },
+                { label: 'Senior', subtitle: 'Ages 65+', initial: 0, setter: setSeniors },
+                { label: 'Youth', subtitle: 'Ages 6–12', initial: 0, setter: setYouth },
+                { label: 'Child', subtitle: 'Ages 0–5 (free)', initial: 0, setter: setChildren },
+              ].map(({ label, subtitle, initial, setter }) => (
                 <div key={label} className="flex items-center justify-between">
                   <div>
                     <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{label}</p>
                     <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{subtitle}</p>
                   </div>
-                  <QuantitySelector initial={label === 'Adults' ? 1 : 0} />
+                  <QuantitySelector initial={initial} onChange={setter} />
                 </div>
               ))}
             </div>
@@ -233,7 +306,7 @@ export default function Fares() {
                 <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>One-Day Pass</p>
                 <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>$10 · All zones</p>
               </div>
-              <QuantitySelector />
+              <QuantitySelector onChange={setPassQty} />
             </div>
 
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', marginBottom: 16 }}>Weekdays</h3>

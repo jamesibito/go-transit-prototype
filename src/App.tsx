@@ -12,10 +12,11 @@ import Settings from './screens/Settings'
 import PaymentHistory from './screens/PaymentHistory'
 import SavedCards from './screens/SavedCards'
 import AccessibilityFeatures from './screens/AccessibilityFeatures'
+import SavedTrips from './screens/SavedTrips'
 import MenuDrawer from './components/MenuDrawer'
 import StatusBar from './components/StatusBar'
 
-export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility'
+export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips'
 
 export interface SavedLine {
   id: string
@@ -29,6 +30,16 @@ export interface ToastData {
   message: string
   subtitle?: string
   visible: boolean
+}
+
+export interface FareDetails {
+  adults: number
+  seniors: number
+  youth: number
+  children: number
+  returnTrip: boolean
+  totalPrice: number
+  passengerLabel: string
 }
 
 export interface ActiveTrip {
@@ -62,6 +73,8 @@ interface NavContextType {
   setSelectedRoute: (key: string) => void
   purchaseType: 'eticket' | 'pass'
   setPurchaseType: (type: 'eticket' | 'pass') => void
+  fareDetails: FareDetails
+  setFareDetails: (fd: FareDetails) => void
   prestoBalance: number
   setPrestoBalance: (bal: number) => void
   activeTrip: ActiveTrip | null
@@ -74,7 +87,7 @@ export const NavContext = createContext<NavContextType>({} as NavContextType)
 export const useNav = () => useContext(NavContext)
 
 const SCREEN_DEPTH: Record<ScreenName, number> = {
-  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2,
+  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2, savedTrips: 1,
 }
 
 const DEFAULT_SAVED_LINES: SavedLine[] = [
@@ -94,6 +107,7 @@ export default function App() {
   const [prestoConnected, setPrestoConnected] = useState(false)
   const [selectedRoute, setSelectedRoute] = useState('stouffville')
   const [purchaseType, setPurchaseType] = useState<'eticket' | 'pass'>('eticket')
+  const [fareDetails, setFareDetails] = useState<FareDetails>({ adults: 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: 0, passengerLabel: '1 Adult' })
   const [prestoBalance, setPrestoBalance] = useState(42.50)
   const [activeTrip, setActiveTrip] = useState<ActiveTrip | null>(null)
   const [toast, setToast] = useState<ToastData>({ message: '', visible: false })
@@ -136,7 +150,7 @@ export default function App() {
     setSavedLines(prev => prev.filter(l => l.id !== id))
   }, [])
 
-  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility']
+  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility', 'savedTrips']
   const screenNodes: Record<ScreenName, React.ReactNode> = {
     landing: <Landing />,
     search: <SearchTrip />,
@@ -151,6 +165,7 @@ export default function App() {
     paymentHistory: <PaymentHistory />,
     savedCards: <SavedCards />,
     accessibility: <AccessibilityFeatures />,
+    savedTrips: <SavedTrips />,
   }
 
   const currentDepth = SCREEN_DEPTH[currentScreen]
@@ -165,6 +180,7 @@ export default function App() {
       prestoConnected, setPrestoConnected,
       selectedRoute, setSelectedRoute,
       purchaseType, setPurchaseType,
+      fareDetails, setFareDetails,
       prestoBalance, setPrestoBalance,
       activeTrip, setActiveTrip,
       showToast, toast,

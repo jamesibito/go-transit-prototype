@@ -316,7 +316,7 @@ export default function Landing() {
             Saved Trips
           </h2>
           {savedLines.length > 2 && (
-            <button className="pressable" onClick={() => navigate('search')}>
+            <button className="pressable" onClick={() => navigate('savedTrips')}>
               <span style={{ fontSize: 14, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>View All</span>
             </button>
           )}

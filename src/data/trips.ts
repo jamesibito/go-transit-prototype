@@ -158,38 +158,44 @@ export function getRouteKeyFromStations(from: string, to: string): string {
   return 'stouffville'
 }
 
-// Generate departure times for search results
-export function generateDepartures(route: RouteConfig, count = 5) {
-  const firstStop = route.stops[0]
-  // lastStop available via route.stops[route.stops.length - 1]
-  // Parse the base time from first stop
-  const match = firstStop.time.match(/(\d+):(\d+)\s*(AM|PM)/i)
-  if (!match) return []
+// Format hour+minute to "H:MM AM/PM"
+export function fmtTime(h: number, m: number) {
+  const p = h >= 12 ? 'PM' : 'AM'
+  const h12 = h % 12 || 12
+  return `${h12}:${m.toString().padStart(2, '0')} ${p}`
+}
 
-  let baseHour = parseInt(match[1])
-  const baseMin = parseInt(match[2])
-  const period = match[3].toUpperCase()
-  if (period === 'PM' && baseHour !== 12) baseHour += 12
-  if (period === 'AM' && baseHour === 12) baseHour = 0
+// Generate realistic departure times starting from now
+export function generateDepartures(route: RouteConfig, count = 5) {
+  const now = new Date()
+  const currentH = now.getHours()
+  const currentM = now.getMinutes()
 
   // Duration in minutes
   const durMin = parseInt(route.duration)
 
-  const fmtTime = (h: number, m: number) => {
-    const p = h >= 12 ? 'PM' : 'AM'
-    const h12 = h % 12 || 12
-    return `${h12}:${m.toString().padStart(2, '0')} ${p}`
-  }
+  // GO trains typically run every 30-60 min, buses every 30-45 min
+  const isBus = route.key === 'highway-407'
+  const interval = isBus ? 40 : 30  // minutes between departures
+
+  // Next departure: round up to next interval + 5-15 min buffer
+  const totalMinNow = currentH * 60 + currentM
+  const buffer = 8 + Math.floor(Math.random() * 7) // 8-14 min from now
+  const firstDepMin = totalMinNow + buffer
+  // Round to nice minute (next :04, :24, :44 pattern for trains)
+  const roundedFirst = isBus
+    ? Math.ceil(firstDepMin / 15) * 15
+    : firstDepMin - (firstDepMin % interval) + interval + 4
 
   const results = []
-  // Start 3 hours before the stop time to get a good spread
-  const startHour = Math.max(6, baseHour - 3)
   for (let i = 0; i < count; i++) {
-    const depH = startHour + i
-    const depM = baseMin
-    if (depH >= 24) break
-    const arrH = depH + Math.floor((depM + durMin) / 60)
-    const arrM = (depM + durMin) % 60
+    const depTotalMin = roundedFirst + (i * interval)
+    if (depTotalMin >= 24 * 60) break // past midnight
+    const depH = Math.floor(depTotalMin / 60)
+    const depM = depTotalMin % 60
+    const arrTotalMin = depTotalMin + durMin
+    const arrH = Math.floor(arrTotalMin / 60)
+    const arrM = arrTotalMin % 60
     results.push({
       departure: fmtTime(depH, depM),
       arrival: fmtTime(arrH, arrM),
@@ -199,6 +205,30 @@ export function generateDepartures(route: RouteConfig, count = 5) {
     })
   }
   return results
+}
+
+// Generate realistic stop times based on a given departure time
+export function generateStopTimes(route: RouteConfig, departureTime: string): TripStop[] {
+  const match = departureTime.match(/(\d+):(\d+)\s*(AM|PM)/i)
+  if (!match) return route.stops
+
+  let depH = parseInt(match[1])
+  const depM = parseInt(match[2])
+  const period = match[3].toUpperCase()
+  if (period === 'PM' && depH !== 12) depH += 12
+  if (period === 'AM' && depH === 12) depH = 0
+
+  const totalStops = route.stops.length
+  const durMin = parseInt(route.duration)
+  const avgInterval = durMin / (totalStops - 1)
+
+  return route.stops.map((stop, i) => {
+    const elapsed = Math.round(i * avgInterval)
+    const stopTotalMin = depH * 60 + depM + elapsed
+    const stopH = Math.floor(stopTotalMin / 60)
+    const stopM = stopTotalMin % 60
+    return { ...stop, time: fmtTime(stopH, stopM) }
+  })
 }
 
 export const DEFAULT_ROUTE = 'stouffville'

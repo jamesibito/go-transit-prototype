@@ -1,6 +1,6 @@
 import { useNav } from '../App'
 import { ChevronLeft, StarIcon, AlertIcon } from '../components/Icons'
-import { ROUTES } from '../data/trips'
+import { ROUTES, generateStopTimes, fmtTime } from '../data/trips'
 
 function TransitMap({ label1, label2 }: { label1: string; label2: string }) {
   return (
@@ -28,12 +28,19 @@ function TransitMap({ label1, label2 }: { label1: string; label2: string }) {
 }
 
 export default function TripDetails() {
-  const { goBack, navigate, favorites, toggleFavorite, selectedRoute, setPurchaseType } = useNav()
+  const { goBack, navigate, favorites, toggleFavorite, selectedRoute, setPurchaseType, setFareDetails } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
-  const tripId = `${route.key}-${route.stops[0].time.replace(/[\s:]/g, '').toLowerCase()}`
+  // Generate realistic times based on current time (next departure ~10-15 min from now)
+  const now = new Date()
+  const depMin = now.getMinutes() + 10 + Math.floor(Math.random() * 5)
+  const depH = now.getHours() + Math.floor(depMin / 60)
+  const depM = depMin % 60
+  const departureStr = fmtTime(depH, depM)
+  const stops = generateStopTimes(route, departureStr)
+  const firstTime = stops[0].time
+  const lastTime = stops[stops.length - 1].time
+  const tripId = `${route.key}-${firstTime.replace(/[\s:]/g, '').toLowerCase()}`
   const isFavorited = favorites.has(tripId)
-  const firstTime = route.stops[0].time
-  const lastTime = route.stops[route.stops.length - 1].time
 
   return (
     <div className="min-h-full" style={{ background: 'var(--surface-primary)', marginTop: -48 }}>
@@ -56,7 +63,7 @@ export default function TripDetails() {
             {firstTime} – {lastTime}
           </h2>
           <p style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', marginTop: 2 }}>{route.line}</p>
-          <p style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4 }}>Trip time: {route.duration} · {route.stops.length} stops</p>
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4 }}>Trip time: {route.duration} · {stops.length} stops</p>
         </div>
         <button className="pressable mt-1 p-2 -mr-2 rounded-full" onClick={() => toggleFavorite(tripId)}
           style={{ background: isFavorited ? 'var(--surface-green-soft)' : 'transparent', transition: 'background 200ms ease' }}>
@@ -76,9 +83,9 @@ export default function TripDetails() {
       </div>
 
       <div className="mx-5 px-4 py-4 rounded-b-xl" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-green)', borderTop: 'none' }}>
-        {route.stops.map((stop, i) => (
+        {stops.map((stop, i) => (
           <div key={i} className="flex items-start gap-4">
-            <div className="flex flex-col items-center" style={{ width: 20, minHeight: i < route.stops.length - 1 ? 52 : 20 }}>
+            <div className="flex flex-col items-center" style={{ width: 20, minHeight: i < stops.length - 1 ? 52 : 20 }}>
               <div style={{
                 width: stop.major ? 14 : 9,
                 height: stop.major ? 14 : 9,
@@ -88,11 +95,11 @@ export default function TripDetails() {
                 marginTop: stop.major ? 3 : 6,
                 flexShrink: 0,
               }} />
-              {i < route.stops.length - 1 && (
+              {i < stops.length - 1 && (
                 <div style={{ width: 2.5, flex: 1, background: '#357a1e', minHeight: 28, marginTop: 4 }} />
               )}
             </div>
-            <div className="flex-1 pb-1" style={{ paddingBottom: i < route.stops.length - 1 ? 10 : 0 }}>
+            <div className="flex-1 pb-1" style={{ paddingBottom: i < stops.length - 1 ? 10 : 0 }}>
               <div className="flex items-center justify-between">
                 <span style={{
                   fontSize: stop.major ? 16 : 14,
@@ -151,7 +158,7 @@ export default function TripDetails() {
         <button
           className="pressable w-full py-4 rounded-2xl mt-3 mb-4"
           style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, color: 'white', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
-          onClick={() => { setPurchaseType('eticket'); navigate('payment') }}
+          onClick={() => { setFareDetails({ adults: 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: 0, passengerLabel: '1 Adult' }); setPurchaseType('eticket'); navigate('payment') }}
         >
           Buy E-Ticket
         </button>

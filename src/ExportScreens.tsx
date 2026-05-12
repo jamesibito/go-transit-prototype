@@ -76,6 +76,8 @@ function ScreenWithContext({ children, route = 'stouffville', dark = false }: { 
     setSelectedRoute: noop as (key: string) => void,
     purchaseType: 'eticket' as const,
     setPurchaseType: noop as (type: 'eticket' | 'pass') => void,
+    fareDetails: { adults: 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: 0, passengerLabel: '1 Adult' },
+    setFareDetails: noop as (fd: import('./App').FareDetails) => void,
     showToast: noop as (message: string, subtitle?: string, duration?: number) => void,
     toast: { message: '', visible: false },
     prestoBalance: 42.50,

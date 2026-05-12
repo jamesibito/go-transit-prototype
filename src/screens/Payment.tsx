@@ -6,12 +6,25 @@ import { ROUTES } from '../data/trips'
 type PaymentMethod = 'presto' | 'visa' | 'new'
 
 export default function Payment() {
-  const { goBack, navigate, prestoConnected, setPrestoConnected, selectedRoute, purchaseType, showToast, prestoBalance, setPrestoBalance } = useNav()
+  const { goBack, navigate, prestoConnected, setPrestoConnected, selectedRoute, purchaseType, showToast, prestoBalance, setPrestoBalance, fareDetails } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const isPass = purchaseType === 'pass'
+  const hasFareDetails = fareDetails.totalPrice > 0
   const displayLabel = isPass ? 'One-Day Pass' : 'E-Ticket'
   const [selected, setSelected] = useState<PaymentMethod>(prestoConnected ? 'presto' : 'visa')
-  const displayPrice = selected === 'presto' ? (isPass ? '$10.00' : route.prestoPrice) : (isPass ? '$10.00' : route.eTicketPrice)
+
+  // Use fareDetails total if available (from Fares flow), otherwise single ticket price
+  const eTicketPrice = hasFareDetails ? fareDetails.totalPrice : parseFloat(route.eTicketPrice.replace('$', ''))
+  const prestoBasePrice = parseFloat(route.prestoPrice.replace('$', ''))
+  const prestoRatio = prestoBasePrice / parseFloat(route.eTicketPrice.replace('$', ''))
+  const prestoTotal = hasFareDetails ? fareDetails.totalPrice * prestoRatio : prestoBasePrice
+  const passPrice = hasFareDetails ? fareDetails.totalPrice : 10
+
+  const numericPrice = selected === 'presto'
+    ? (isPass ? passPrice : prestoTotal)
+    : (isPass ? passPrice : eTicketPrice)
+  const displayPrice = `$${numericPrice.toFixed(2)}`
+  const passengerLabel = hasFareDetails ? fareDetails.passengerLabel : '1 Adult'
   const [saveCard, setSaveCard] = useState(true)
   const [processing, setProcessing] = useState(false)
 
@@ -20,8 +33,7 @@ export default function Payment() {
     setTimeout(() => {
       // Deduct PRESTO balance if paying with PRESTO
       if (selected === 'presto') {
-        const price = parseFloat((isPass ? '10.00' : route.prestoPrice.replace('$', '')))
-        setPrestoBalance(Math.max(0, prestoBalance - price))
+        setPrestoBalance(Math.max(0, prestoBalance - numericPrice))
       }
       setProcessing(false)
       navigate('ticketConfirmation')
@@ -54,7 +66,7 @@ export default function Payment() {
               </div>
             )}
             <div className="flex items-center justify-between">
-              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{displayLabel} · 1 Adult</span>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{displayLabel} · {passengerLabel}</span>
               <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{displayPrice}</span>
             </div>
             {isPass && (
@@ -254,7 +266,7 @@ export default function Payment() {
             </>
           )}
         </button>
-        <p className="text-center mt-14 flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', opacity: 0.6 }}>
+        <p className="text-center flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', opacity: 0.6, marginTop: 48 }}>
           <LockIcon size={11} color="var(--text-muted)" strokeWidth={2} />
           Secured with 256-bit encryption
         </p>

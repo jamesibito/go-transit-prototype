@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNav } from '../App'
 import { TrainIcon, BusIcon } from '../components/Icons'
-import { ROUTES } from '../data/trips'
+import { ROUTES, fmtTime } from '../data/trips'
 
 function QRCode() {
   const rows = 11
@@ -78,14 +78,16 @@ function getTicketId(routeKey: string): string {
 }
 
 export default function TicketConfirmation() {
-  const { navigate, showToast, selectedRoute, purchaseType, setActiveTrip, prestoBalance, setPrestoBalance } = useNav()
+  const { navigate, showToast, selectedRoute, purchaseType, setActiveTrip, fareDetails } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const isPass = purchaseType === 'pass'
   const isBus = selectedRoute === 'highway-407'
+  const hasFareDetails = fareDetails.totalPrice > 0
   const [walletAdded, setWalletAdded] = useState(false)
 
-  const displayPrice = isPass ? '$10.00' : route.eTicketPrice
+  const displayPrice = hasFareDetails ? `$${fareDetails.totalPrice.toFixed(2)}` : (isPass ? '$10.00' : route.eTicketPrice)
   const displayLabel = isPass ? 'One-Day Pass' : 'E-Ticket'
+  const passengerLabel = hasFareDetails ? fareDetails.passengerLabel : '1 Adult'
   const platform = getPlatform(selectedRoute)
   const ticketId = getTicketId(selectedRoute)
 
@@ -95,9 +97,14 @@ export default function TicketConfirmation() {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const dateStr = `${days[today.getDay()]}, ${months[today.getMonth()]} ${today.getDate()}`
 
-  // Get a departure time (first stop time from route)
-  const departureTime = route.stops[0].time
-  const arrivalTime = route.stops[route.stops.length - 1].time
+  // Generate realistic departure/arrival times relative to now
+  const depMin = today.getMinutes() + 10 + Math.floor(Math.random() * 5)
+  const depH = today.getHours() + Math.floor(depMin / 60)
+  const depM = depMin % 60
+  const durMin = parseInt(route.duration)
+  const arrTotalMin = depH * 60 + depM + durMin
+  const departureTime = fmtTime(depH, depM)
+  const arrivalTime = fmtTime(Math.floor(arrTotalMin / 60), arrTotalMin % 60)
 
   const handleAddWallet = () => {
     if (walletAdded) return
@@ -140,7 +147,7 @@ export default function TicketConfirmation() {
             <VehicleIcon size={20} color="white" />
             <div>
               <p style={{ fontSize: 15, fontWeight: 800, color: 'white', fontFamily: 'inherit' }}>{route.line}</p>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'inherit' }}>{displayLabel} · 1 Adult</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'inherit' }}>{displayLabel} · {passengerLabel}</p>
             </div>
           </div>
 

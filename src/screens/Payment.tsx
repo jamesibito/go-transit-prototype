@@ -161,8 +161,9 @@ export default function Payment() {
         <div className="px-5 pb-4">
           <div className="rounded-2xl px-4 py-4" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-color)' }}>
             <div className="mb-3">
-              <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Card Number</label>
+              <label htmlFor="pay-card-number" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Card Number</label>
               <input
+                id="pay-card-number"
                 type="text"
                 placeholder="1234 5678 9012 3456"
                 className="w-full mt-1.5 px-3 py-2.5 rounded-xl"
@@ -171,8 +172,9 @@ export default function Payment() {
             </div>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Expiry</label>
+                <label htmlFor="pay-expiry" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Expiry</label>
                 <input
+                  id="pay-expiry"
                   type="text"
                   placeholder="MM/YY"
                   className="w-full mt-1.5 px-3 py-2.5 rounded-xl"
@@ -180,8 +182,9 @@ export default function Payment() {
                 />
               </div>
               <div className="flex-1">
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CVV</label>
+                <label htmlFor="pay-cvv" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CVV</label>
                 <input
+                  id="pay-cvv"
                   type="text"
                   placeholder="123"
                   className="w-full mt-1.5 px-3 py-2.5 rounded-xl"
@@ -208,7 +211,7 @@ export default function Payment() {
         <div className="px-5 pb-4">
           <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}>
             <PrestoLogo size={16} />
-            <p style={{ fontSize: 13, color: '#357a1e', fontFamily: 'inherit', fontWeight: 600, flex: 1 }}>
+            <p style={{ fontSize: 13, color: 'var(--accent-green)', fontFamily: 'inherit', fontWeight: 600, flex: 1 }}>
               Pay with PRESTO and save {route.prestoSavings}
             </p>
           </div>
@@ -228,7 +231,7 @@ export default function Payment() {
             }}
           >
             <PrestoLogo size={16} />
-            <p style={{ fontSize: 13, color: '#357a1e', fontFamily: 'inherit', fontWeight: 700, flex: 1 }}>
+            <p style={{ fontSize: 13, color: 'var(--accent-green)', fontFamily: 'inherit', fontWeight: 700, flex: 1 }}>
               Connect PRESTO to save {route.prestoSavings}
             </p>
             <ChevronRight size={16} color="#357a1e" />
@@ -266,7 +269,7 @@ export default function Payment() {
             </>
           )}
         </button>
-        <p className="text-center flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', opacity: 0.6, marginTop: 48 }}>
+        <p className="text-center flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 16 }}>
           <LockIcon size={11} color="var(--text-muted)" strokeWidth={2} />
           Secured with 256-bit encryption
         </p>

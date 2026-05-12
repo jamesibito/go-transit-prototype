@@ -55,7 +55,8 @@ function SavedLineRow({ id, from, to, line, muted }: { id: string; from: string;
           </div>
         </button>
         <button
-          className="pressable shrink-0 w-8 h-8 flex items-center justify-center rounded-full"
+          className="pressable shrink-0 w-11 h-11 flex items-center justify-center rounded-full"
+          aria-label="Trip options"
           style={{ background: menuOpen ? 'var(--surface-green-light)' : 'transparent' }}
           onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
         >
@@ -174,7 +175,7 @@ export default function SavedTrips() {
       <div className="px-5 pt-5">
         <button
           className="pressable w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl"
-          style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)', fontSize: 15, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}
+          style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)', fontSize: 15, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}
           onClick={() => navigate('search')}
         >
           <PlusIcon2 size={18} color="#357a1e" strokeWidth={2.5} />

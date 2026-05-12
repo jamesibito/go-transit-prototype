@@ -27,11 +27,12 @@
   --text-muted: #6b7280;
   --surface-primary: #ffffff;
   --surface-secondary: #f8f9fa;
-  --surface-card: #f4f7f3;
+  --surface-card: #f6f8f5;
   --surface-green-soft: #f0f7ec;
   --surface-green-light: #e6f2e0;
   --border-color: #e2e4e7;
   --border-green: #d5e6cc;
+  --accent-green: #357a1e;
   --status-bar-bg: linear-gradient(to bottom, white 70%, rgba(255,255,255,0));
   --status-bar-color: #1a1a1a;
 }
@@ -40,7 +41,7 @@
 .phone-shell.dark {
   --text-primary: #f0f1f3;
   --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  --text-muted: #8b929e;
   --surface-primary: #1a1d21;
   --surface-secondary: #111315;
   --surface-card: #242830;
@@ -48,6 +49,7 @@
   --surface-green-light: #1f3518;
   --border-color: #2d3239;
   --border-green: #2a4020;
+  --accent-green: #5ba643;
   --status-bar-bg: linear-gradient(to bottom, #1a1d21 70%, rgba(26,29,33,0));
   --status-bar-color: #f0f1f3;
 }

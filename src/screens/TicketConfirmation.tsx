@@ -182,7 +182,7 @@ export default function TicketConfirmation() {
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 16v-4" /><path d="M12 8h.01" />
               </svg>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>
                 {isBus ? `Departing from Bay ${platform.replace('Bay ', '')}` : `Board at Platform ${platform}`}
               </p>
             </div>
@@ -222,7 +222,7 @@ export default function TicketConfirmation() {
 
         <button
           className="pressable w-full mt-3 py-4 rounded-2xl"
-          style={{ background: 'var(--surface-green-soft)', fontSize: 16, fontWeight: 800, color: '#357a1e', fontFamily: 'inherit' }}
+          style={{ background: 'var(--surface-green-soft)', fontSize: 16, fontWeight: 800, color: 'var(--accent-green)', fontFamily: 'inherit' }}
           onClick={handleDone}
         >
           Done

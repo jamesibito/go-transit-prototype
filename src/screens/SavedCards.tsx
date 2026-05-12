@@ -137,7 +137,7 @@ export default function SavedCards() {
                       {card.type === 'visa' ? 'Visa' : 'Mastercard'} •••• {card.last4}
                     </p>
                     {card.isDefault && (
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#357a1e', background: 'var(--surface-green-soft)', padding: '2px 8px', borderRadius: 6, fontFamily: 'inherit' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent-green)', background: 'var(--surface-green-soft)', padding: '2px 8px', borderRadius: 6, fontFamily: 'inherit' }}>
                         Default
                       </span>
                     )}
@@ -150,7 +150,7 @@ export default function SavedCards() {
                   {!card.isDefault && (
                     <button
                       className="pressable px-2.5 py-1.5 rounded-lg"
-                      style={{ fontSize: 11, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', background: 'var(--surface-green-soft)' }}
+                      style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit', background: 'var(--surface-green-soft)' }}
                       onClick={() => handleSetDefault(card.id)}
                     >
                       Set Default
@@ -204,13 +204,14 @@ export default function SavedCards() {
               <div className="w-[30px] h-[30px] rounded-lg flex items-center justify-center" style={{ background: 'var(--surface-secondary)', border: '1.5px dashed var(--border-color)' }}>
                 <PlusIcon2 size={16} color="var(--text-muted)" strokeWidth={2} />
               </div>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>Add New Card</p>
+              <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>Add New Card</p>
             </button>
           ) : (
             <div className="px-4 py-4" style={{ background: 'var(--surface-primary)' }}>
               <div className="mb-3">
-                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Card Number</label>
+                <label htmlFor="sc-card-number" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Card Number</label>
                 <input
+                  id="sc-card-number"
                   type="text"
                   value={newCardNumber}
                   onChange={e => setNewCardNumber(formatCardNumber(e.target.value))}
@@ -221,8 +222,9 @@ export default function SavedCards() {
               </div>
               <div className="flex gap-3 mb-3">
                 <div className="flex-1">
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Expiry</label>
+                  <label htmlFor="sc-expiry" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Expiry</label>
                   <input
+                    id="sc-expiry"
                     type="text"
                     value={newCardExpiry}
                     onChange={e => setNewCardExpiry(formatExpiry(e.target.value))}
@@ -232,8 +234,9 @@ export default function SavedCards() {
                   />
                 </div>
                 <div className="flex-1">
-                  <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CVV</label>
+                  <label htmlFor="sc-cvv" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>CVV</label>
                   <input
+                    id="sc-cvv"
                     type="text"
                     value={newCardCvv}
                     onChange={e => setNewCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}

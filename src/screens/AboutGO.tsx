@@ -69,7 +69,7 @@ export default function AboutGO() {
               href="https://jamesibitoye.framer.website"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', textDecoration: 'none' }}
+              style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit', textDecoration: 'none' }}
             >
               James Ibitoye
             </a>
@@ -85,7 +85,7 @@ export default function AboutGO() {
               style={{ textDecoration: 'none' }}
             >
               <LinkIcon size={13} color="#357a1e" strokeWidth={2} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>jamesibitoye.framer.website</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>jamesibitoye.framer.website</span>
             </a>
           </div>
         </div>

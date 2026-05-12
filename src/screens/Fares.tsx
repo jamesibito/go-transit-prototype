@@ -10,6 +10,7 @@ interface ToggleProps { on: boolean; onToggle: () => void }
 function Toggle({ on, onToggle }: ToggleProps) {
   return (
     <button className="pressable relative" onClick={onToggle}
+      role="switch" aria-checked={on}
       style={{ width: 48, height: 26, borderRadius: 13, background: on ? '#357a1e' : 'var(--border-color)', transition: 'background 200ms ease', flexShrink: 0 }}>
       <div style={{
         position: 'absolute', top: 2, left: on ? 24 : 2,
@@ -67,7 +68,7 @@ function FareResult({ type, onReset, fareInfo }: { type: 'eticket' | 'passes'; o
           </div>
           <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'var(--surface-card)' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>All zones included</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>Unlimited rides</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>Unlimited rides</span>
           </div>
         </div>
 
@@ -80,7 +81,7 @@ function FareResult({ type, onReset, fareInfo }: { type: 'eticket' | 'passes'; o
         </button>
         <button
           className="pressable w-full py-3 rounded-2xl"
-          style={{ background: 'var(--surface-green-soft)', fontSize: 14, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}
+          style={{ background: 'var(--surface-green-soft)', fontSize: 14, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}
           onClick={onReset}
         >
           Start Over
@@ -136,12 +137,12 @@ function FareResult({ type, onReset, fareInfo }: { type: 'eticket' | 'passes'; o
           {fareInfo.children > 0 && (
             <div className="flex items-center justify-between mb-1.5">
               <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{fareInfo.children} Child{fareInfo.children > 1 ? 'ren' : ''}</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>Free</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>Free</span>
             </div>
           )}
           {fareInfo.returnTrip && (
             <div className="flex items-center gap-1.5 mb-2 mt-1">
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', background: 'var(--surface-green-soft)', borderRadius: 6, padding: '2px 8px' }}>Return trip included</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit', background: 'var(--surface-green-soft)', borderRadius: 6, padding: '2px 8px' }}>Return trip included</span>
             </div>
           )}
           <div className="flex items-center justify-between" style={{ borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
@@ -151,7 +152,7 @@ function FareResult({ type, onReset, fareInfo }: { type: 'eticket' | 'passes'; o
         </div>
         <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'var(--surface-green-soft)' }}>
           <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>PRESTO alternative</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>${prestoTotal.toFixed(2)} (save ${savings.toFixed(2)})</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>${prestoTotal.toFixed(2)} (save ${savings.toFixed(2)})</span>
         </div>
       </div>
 
@@ -164,7 +165,7 @@ function FareResult({ type, onReset, fareInfo }: { type: 'eticket' | 'passes'; o
       </button>
       <button
         className="pressable w-full py-3 rounded-2xl"
-        style={{ background: 'var(--surface-green-soft)', fontSize: 14, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}
+        style={{ background: 'var(--surface-green-soft)', fontSize: 14, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}
         onClick={onReset}
       >
         Start Over

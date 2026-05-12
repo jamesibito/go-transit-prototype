@@ -15,11 +15,11 @@ export default function NavHeader({ title, showLogo, showBack = false, showMenu 
   return (
     <div className="flex items-center justify-between px-5 pt-2 pb-3">
       {showBack ? (
-        <button className="pressable w-11 h-11 flex items-center justify-center -ml-2 rounded-full" onClick={goBack}>
+        <button className="pressable w-11 h-11 flex items-center justify-center -ml-2 rounded-full" onClick={goBack} aria-label="Go back">
           <ChevronLeft size={24} color="var(--text-primary)" strokeWidth={2.5} />
         </button>
       ) : showMenu ? (
-        <button className="pressable w-11 h-11 flex items-center justify-center -ml-2 rounded-full" onClick={openMenu}>
+        <button className="pressable w-11 h-11 flex items-center justify-center -ml-2 rounded-full" onClick={openMenu} aria-label="Open menu">
           <MenuHamburger size={22} color="var(--text-primary)" strokeWidth={2.5} />
         </button>
       ) : (
@@ -38,7 +38,7 @@ export default function NavHeader({ title, showLogo, showBack = false, showMenu 
 
       {/* Right side: tappable logo when showing title (for getting home) */}
       {title && !showLogo && !hideCornerLogo ? (
-        <button className="pressable h-11 flex items-center justify-center rounded-full" style={{ width: 44, marginRight: -8 }} onClick={goHome}>
+        <button className="pressable h-11 flex items-center justify-center rounded-full" style={{ width: 44, marginRight: -8 }} onClick={goHome} aria-label="Go home">
           <div style={{ marginLeft: -6 }}>
             <GOLogo size={16} color="#357a1e" />
           </div>

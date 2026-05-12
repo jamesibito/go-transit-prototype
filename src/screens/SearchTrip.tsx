@@ -66,7 +66,7 @@ export default function SearchTrip() {
             onClick={() => setPickerField('from')}
           >
             <div className="px-4 pt-2.5 pb-0.5">
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#357a1e', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>From</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-green)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>From</span>
             </div>
             <div className="flex items-center gap-2.5 px-4 pb-3">
               <LocationPin size={18} color="#357a1e" strokeWidth={2} />
@@ -92,7 +92,7 @@ export default function SearchTrip() {
             onClick={() => setPickerField('to')}
           >
             <div className="px-4 pt-2.5 pb-0.5">
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#357a1e', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>To</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-green)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>To</span>
             </div>
             <div className="flex items-center gap-2.5 px-4 pb-3">
               <LocationPin size={18} color="#357a1e" strokeWidth={2} />

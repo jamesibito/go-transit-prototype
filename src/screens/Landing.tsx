@@ -56,8 +56,8 @@ function NextDepartureCard({ onTap }: { onTap: () => void }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span style={{ fontSize: 11, fontWeight: 800, color: '#357a1e', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Next Train</span>
-            <span className="flex items-center gap-1" style={{ fontSize: 11, fontWeight: 800, color: '#357a1e', background: 'var(--surface-green-light)', borderRadius: 8, padding: '2px 8px', fontFamily: 'inherit' }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--accent-green)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Next Train</span>
+            <span className="flex items-center gap-1" style={{ fontSize: 11, fontWeight: 800, color: 'var(--accent-green)', background: 'var(--surface-green-light)', borderRadius: 8, padding: '2px 8px', fontFamily: 'inherit' }}>
               <ClockIcon size={11} color="#357a1e" strokeWidth={2.5} />
               {next.minsAway} min
             </span>
@@ -128,7 +128,8 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
           </div>
         </button>
         <button
-          className="pressable shrink-0 w-8 h-8 flex items-center justify-center rounded-full"
+          className="pressable shrink-0 w-11 h-11 flex items-center justify-center rounded-full"
+          aria-label="Trip options"
           style={{ background: menuOpen ? 'var(--surface-green-light)' : 'transparent' }}
           onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen) }}
         >
@@ -211,7 +212,7 @@ function ActiveTripCard() {
         <button className="pressable w-full text-left px-4 py-3.5" style={{ background: 'var(--surface-card)' }} onClick={() => navigate('tripDetails')}>
           <div className="flex items-center justify-between mb-2">
             <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{activeTrip.line}</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>{activeTrip.departure} → {activeTrip.arrival}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>{activeTrip.departure} → {activeTrip.arrival}</span>
           </div>
           <div className="flex items-center justify-between">
             <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit', fontWeight: 600 }}>{activeTrip.from} → {activeTrip.to}</span>
@@ -249,7 +250,7 @@ export default function Landing() {
     <div className="min-h-full" style={{ background: 'var(--surface-primary)' }}>
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-2 pb-2">
-        <button className="pressable w-11 h-11 flex items-center justify-center -ml-2 rounded-full" onClick={openMenu}>
+        <button className="pressable w-11 h-11 flex items-center justify-center -ml-2 rounded-full" onClick={openMenu} aria-label="Open menu">
           <MenuHamburger size={22} color="var(--text-primary)" strokeWidth={2.5} />
         </button>
         <GOLogo size={28} color="#357a1e" />
@@ -288,7 +289,7 @@ export default function Landing() {
       <div className="px-5 pb-4 flex gap-2.5">
         <button
           className="pressable flex-1 py-3 px-4 rounded-xl text-center flex items-center justify-center gap-2"
-          style={{ background: 'var(--surface-green-soft)', fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', border: '1px solid var(--border-green)' }}
+          style={{ background: 'var(--surface-green-soft)', fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit', border: '1px solid var(--border-green)' }}
           onClick={() => navigate('fares')}
         >
           <FaresIcon size={15} color="#357a1e" strokeWidth={2} />
@@ -296,7 +297,7 @@ export default function Landing() {
         </button>
         <button
           className="pressable flex-1 py-3 px-4 rounded-xl text-center flex items-center justify-center gap-2"
-          style={{ background: 'var(--surface-green-soft)', fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit', border: '1px solid var(--border-green)' }}
+          style={{ background: 'var(--surface-green-soft)', fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit', border: '1px solid var(--border-green)' }}
           onClick={() => navigate('serviceUpdates')}
         >
           <AlertIcon size={15} color="#357a1e" strokeWidth={2} />
@@ -317,7 +318,7 @@ export default function Landing() {
           </h2>
           {savedLines.length > 2 && (
             <button className="pressable" onClick={() => navigate('savedTrips')}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>View All</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>View All</span>
             </button>
           )}
         </div>

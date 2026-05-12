@@ -5,6 +5,7 @@ import { AccessibilityIcon, SmartphoneIcon, ChevronRight } from '../components/I
 function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
     <button className="pressable relative shrink-0" onClick={onToggle}
+      role="switch" aria-checked={on}
       style={{ width: 48, height: 26, borderRadius: 13, background: on ? '#357a1e' : '#d5d7da', transition: 'background 200ms ease' }}>
       <div style={{
         position: 'absolute', top: 2, left: on ? 24 : 2,

@@ -124,6 +124,27 @@ export const ROUTES: Record<string, RouteConfig> = {
     mapLabel1: 'Union',
     mapLabel2: 'Burlington',
   },
+  'highway-407': {
+    key: 'highway-407',
+    line: 'Highway 407 Bus',
+    from: 'Mississauga City Centre',
+    to: 'Markham Stouffville Hospital',
+    color: '#357a1e',
+    stops: [
+      { name: 'Mississauga City Centre', time: '7:30 AM', major: true },
+      { name: 'Brampton Gateway', time: '7:48 AM', major: false },
+      { name: 'Highway 407 & 400', time: '8:02 AM', major: false },
+      { name: 'VMC Bus Terminal', time: '8:12 AM', major: false },
+      { name: 'Highway 407 & 404', time: '8:28 AM', major: false },
+      { name: 'Markham Stouffville Hospital', time: '8:40 AM', major: true },
+    ],
+    eTicketPrice: '$8.20',
+    prestoPrice: '$6.90',
+    prestoSavings: '$1.30',
+    duration: '70 min',
+    mapLabel1: 'Mississauga',
+    mapLabel2: 'Markham',
+  },
 }
 
 // Map search history entries to route keys
@@ -133,6 +154,7 @@ export function getRouteKeyFromStations(from: string, to: string): string {
   if (f.includes('oshawa') || t.includes('oshawa')) return 'lakeshore-east'
   if (f.includes('king city') || t.includes('king city') || f.includes('aurora') || t.includes('aurora') || f.includes('barrie') || t.includes('barrie')) return 'barrie'
   if (f.includes('burlington') || t.includes('burlington') || f.includes('oakville') || t.includes('oakville')) return 'lakeshore-west'
+  if (f.includes('mississauga') || t.includes('mississauga') || f.includes('markham') || t.includes('markham') || f.includes('407')) return 'highway-407'
   return 'stouffville'
 }
 

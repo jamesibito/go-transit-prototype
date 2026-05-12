@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNav } from '../App'
-import { MenuHamburger, GOLogo, ArrowRight, TrainIcon, ClockIcon, MoreVerticalIcon, BellOffIcon, BellIcon, TrashIcon, FaresIcon, AlertIcon } from '../components/Icons'
+import { MenuHamburger, GOLogo, ArrowRight, TrainIcon, BusIcon, ClockIcon, MoreVerticalIcon, BellOffIcon, BellIcon, TrashIcon, FaresIcon, AlertIcon } from '../components/Icons'
 
 function getNextDepartures() {
   const now = new Date()
@@ -164,6 +164,79 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
   )
 }
 
+function ActiveTripCard() {
+  const { activeTrip, setActiveTrip, navigate } = useNav()
+  const [elapsed, setElapsed] = useState(0)
+
+  useEffect(() => {
+    if (!activeTrip) return
+    const id = setInterval(() => setElapsed(prev => prev + 1), 60000)
+    return () => clearInterval(id)
+  }, [activeTrip])
+
+  if (!activeTrip) return null
+
+  const isBus = activeTrip.line.toLowerCase().includes('bus')
+
+  return (
+    <div className="px-5 pb-4">
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1.5px solid #357a1e', boxShadow: '0 2px 16px rgba(53,122,30,0.12)' }}>
+        <div className="px-4 py-3 flex items-center gap-3" style={{ background: '#357a1e' }}>
+          <div className="relative">
+            {isBus ? <BusIcon size={18} color="white" /> : <TrainIcon size={18} color="white" />}
+            {/* Pulsing dot */}
+            <div style={{
+              position: 'absolute', top: -2, right: -2, width: 8, height: 8,
+              borderRadius: '50%', background: '#4ade80',
+              boxShadow: '0 0 0 2px #357a1e',
+              animation: 'pulse-dot 2s ease-in-out infinite',
+            }} />
+          </div>
+          <div className="flex-1">
+            <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.8)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Active Trip</span>
+          </div>
+          <button
+            className="pressable px-2.5 py-1 rounded-lg"
+            style={{ background: 'rgba(255,255,255,0.15)', fontSize: 11, fontWeight: 700, color: 'white', fontFamily: 'inherit' }}
+            onClick={() => setActiveTrip(null)}
+          >
+            End Trip
+          </button>
+        </div>
+        <button className="pressable w-full text-left px-4 py-3.5" style={{ background: 'var(--surface-card)' }} onClick={() => navigate('tripDetails')}>
+          <div className="flex items-center justify-between mb-2">
+            <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{activeTrip.line}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>{activeTrip.departure} → {activeTrip.arrival}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit', fontWeight: 600 }}>{activeTrip.from} → {activeTrip.to}</span>
+            {activeTrip.platform && (
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', background: 'var(--surface-green-light)', borderRadius: 6, padding: '1px 6px' }}>
+                {isBus ? `Bay ${activeTrip.platform.replace('Bay ', '')}` : `Plat. ${activeTrip.platform}`}
+              </span>
+            )}
+          </div>
+        </button>
+        {/* Progress bar */}
+        <div style={{ height: 3, background: 'var(--surface-green-light)' }}>
+          <div style={{
+            height: '100%', background: '#357a1e', borderRadius: 2,
+            width: `${Math.min(85, 15 + elapsed * 5)}%`,
+            transition: 'width 1s ease',
+          }} />
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.3); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export default function Landing() {
   const { navigate, openMenu, savedLines } = useNav()
 
@@ -180,9 +253,12 @@ export default function Landing() {
 
       {/* Greeting */}
       <div className="px-6 pt-3 pb-2">
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Good morning</p>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'}</p>
         <h1 style={{ fontSize: 26, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.5px', marginTop: 2 }}>Where are you headed?</h1>
       </div>
+
+      {/* Active Trip (shown after ticket purchase) */}
+      <ActiveTripCard />
 
       {/* Next Departure */}
       <div className="px-5 pt-2 pb-4">
@@ -234,9 +310,6 @@ export default function Landing() {
           <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>
             Saved Trips
           </h2>
-          <button className="pressable" onClick={() => navigate('search')} style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>
-            View all
-          </button>
         </div>
         <div className="flex flex-col gap-2.5">
           {savedLines.length > 0 ? (

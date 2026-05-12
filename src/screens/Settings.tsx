@@ -176,7 +176,7 @@ export default function Settings() {
 
       <div className="px-5 pb-3">
         <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', textAlign: 'center', lineHeight: 1.5 }}>
-          GO Transit Concept App v4.1
+          GO Transit Concept App v4.2
         </p>
         <a
           href="https://jamesibitoye.framer.website"

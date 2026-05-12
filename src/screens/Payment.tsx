@@ -6,7 +6,7 @@ import { ROUTES } from '../data/trips'
 type PaymentMethod = 'presto' | 'visa' | 'new'
 
 export default function Payment() {
-  const { goBack, navigate, prestoConnected, setPrestoConnected, selectedRoute, purchaseType, showToast } = useNav()
+  const { goBack, navigate, prestoConnected, setPrestoConnected, selectedRoute, purchaseType, showToast, prestoBalance, setPrestoBalance } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const isPass = purchaseType === 'pass'
   const displayPrice = isPass ? '$10.00' : route.eTicketPrice
@@ -18,6 +18,11 @@ export default function Payment() {
   const handlePay = () => {
     setProcessing(true)
     setTimeout(() => {
+      // Deduct PRESTO balance if paying with PRESTO
+      if (selected === 'presto') {
+        const price = parseFloat((isPass ? '10.00' : route.prestoPrice.replace('$', '')))
+        setPrestoBalance(Math.max(0, prestoBalance - price))
+      }
       setProcessing(false)
       navigate('ticketConfirmation')
     }, 1200)
@@ -81,7 +86,7 @@ export default function Payment() {
               <PrestoLogo size={22} />
               <div className="flex-1 min-w-0">
                 <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>PRESTO Card</p>
-                <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>•••• 4821 · Balance: $42.50</p>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>•••• 4821 · Balance: ${prestoBalance.toFixed(2)}</p>
               </div>
               {selected === 'presto' && (
                 <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: '#357a1e' }}>
@@ -249,7 +254,7 @@ export default function Payment() {
             </>
           )}
         </button>
-        <p className="text-center mt-5 flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+        <p className="text-center mt-8 flex items-center justify-center gap-1.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', opacity: 0.7 }}>
           <LockIcon size={11} color="var(--text-muted)" strokeWidth={2} />
           Secured with 256-bit encryption
         </p>

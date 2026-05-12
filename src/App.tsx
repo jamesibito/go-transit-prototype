@@ -31,6 +31,16 @@ export interface ToastData {
   visible: boolean
 }
 
+export interface ActiveTrip {
+  line: string
+  from: string
+  to: string
+  departure: string
+  arrival: string
+  platform?: string
+  ticketId: string
+}
+
 interface NavContextType {
   currentScreen: ScreenName
   navigate: (screen: ScreenName) => void
@@ -52,6 +62,10 @@ interface NavContextType {
   setSelectedRoute: (key: string) => void
   purchaseType: 'eticket' | 'pass'
   setPurchaseType: (type: 'eticket' | 'pass') => void
+  prestoBalance: number
+  setPrestoBalance: (bal: number) => void
+  activeTrip: ActiveTrip | null
+  setActiveTrip: (trip: ActiveTrip | null) => void
   showToast: (message: string, subtitle?: string, duration?: number) => void
   toast: ToastData
 }
@@ -78,6 +92,8 @@ export default function App() {
   const [prestoConnected, setPrestoConnected] = useState(false)
   const [selectedRoute, setSelectedRoute] = useState('stouffville')
   const [purchaseType, setPurchaseType] = useState<'eticket' | 'pass'>('eticket')
+  const [prestoBalance, setPrestoBalance] = useState(42.50)
+  const [activeTrip, setActiveTrip] = useState<ActiveTrip | null>(null)
   const [toast, setToast] = useState<ToastData>({ message: '', visible: false })
 
   const showToast = useCallback((message: string, subtitle?: string, duration = 2500) => {
@@ -147,6 +163,8 @@ export default function App() {
       prestoConnected, setPrestoConnected,
       selectedRoute, setSelectedRoute,
       purchaseType, setPurchaseType,
+      prestoBalance, setPrestoBalance,
+      activeTrip, setActiveTrip,
       showToast, toast,
     }}>
       <div className={`phone-shell${darkMode ? ' dark' : ''}`}>

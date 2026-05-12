@@ -78,6 +78,10 @@ function ScreenWithContext({ children, route = 'stouffville', dark = false }: { 
     setPurchaseType: noop as (type: 'eticket' | 'pass') => void,
     showToast: noop as (message: string, subtitle?: string, duration?: number) => void,
     toast: { message: '', visible: false },
+    prestoBalance: 42.50,
+    setPrestoBalance: noop as (bal: number) => void,
+    activeTrip: null,
+    setActiveTrip: noop as (trip: import('./App').ActiveTrip | null) => void,
   }
 
   return (

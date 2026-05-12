@@ -60,7 +60,7 @@ export default function AboutGO() {
           <div style={{ height: 1, background: 'var(--border-color)' }} />
           <div className="px-5 py-3 flex items-center justify-between" style={{ background: 'var(--surface-secondary)' }}>
             <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>Version</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>4.1.0</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>4.2.0</span>
           </div>
           <div style={{ height: 1, background: 'var(--border-color)' }} />
           <div className="px-5 py-3 flex items-center justify-between" style={{ background: 'var(--surface-secondary)' }}>

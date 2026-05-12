@@ -108,10 +108,10 @@ function EditModal({ label, value, onSave, onCancel, type = 'text' }: EditModalP
 export default function Account() {
   const { showToast } = useNav()
 
-  const [name, setName] = useState('James Ibitoye')
-  const [email, setEmail] = useState('j.ibitoye@email.com')
+  const [name, setName] = useState('John Smith')
+  const [email, setEmail] = useState('john.smith@email.com')
   const [phone, setPhone] = useState('+1 (416) 555-0192')
-  const [address, setAddress] = useState('Scarborough, ON')
+  const [address, setAddress] = useState('Mississauga, ON')
   const [editing, setEditing] = useState<{ field: string; value: string; type?: string } | null>(null)
 
   const memberSince = 'March 2024'

@@ -83,10 +83,10 @@ export default function Settings() {
           onClick={() => navigate('account')}
         >
           <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0" style={{ background: '#357a1e' }}>
-            <span style={{ fontSize: 18, fontWeight: 900, color: 'white', fontFamily: 'inherit' }}>JI</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: 'white', fontFamily: 'inherit' }}>JS</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>James Ibitoye</p>
+            <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>John Smith</p>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 1 }}>View account details</p>
           </div>
           <ChevronRight size={18} color="var(--text-muted)" />

@@ -82,7 +82,7 @@ export default function SearchResults() {
 
         <div className="px-5 pb-3 shrink-0 flex items-center justify-between">
           <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>Upcoming</span>
-          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>Today, Thu May 7</span>
+          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>Today, {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
         </div>
 
         <div className="overflow-y-auto px-5 pb-6" style={{ flex: 1 }}>
@@ -105,7 +105,7 @@ export default function SearchResults() {
                       <span style={{ fontSize: 11, fontWeight: 800, color: 'white', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Next</span>
                     </div>
                   )}
-                  <TripCard {...trip} type="train" onClick={() => navigate('tripDetails')} />
+                  <TripCard {...trip} type={selectedRoute === 'highway-407' ? 'bus' : 'train'} onClick={() => navigate('tripDetails')} />
                 </div>
               ))
             )}

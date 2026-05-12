@@ -3,7 +3,8 @@ import { useNav } from '../App'
 import NavHeader from '../components/NavHeader'
 import SearchForm from '../components/SearchForm'
 import QuantitySelector from '../components/QuantitySelector'
-import { CheckCircleIcon, TrainIcon } from '../components/Icons'
+import { CheckCircleIcon, TrainIcon, BusIcon } from '../components/Icons'
+import { ROUTES } from '../data/trips'
 
 interface ToggleProps { on: boolean; onToggle: () => void }
 function Toggle({ on, onToggle }: ToggleProps) {
@@ -21,7 +22,9 @@ function Toggle({ on, onToggle }: ToggleProps) {
 }
 
 function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: () => void }) {
-  const { navigate, setPurchaseType } = useNav()
+  const { navigate, setPurchaseType, selectedRoute } = useNav()
+  const route = ROUTES[selectedRoute] || ROUTES.stouffville
+  const isBus = selectedRoute === 'highway-407'
 
   if (type === 'passes') {
     return (
@@ -83,22 +86,22 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
 
       <div className="rounded-2xl overflow-hidden mb-4" style={{ border: '1px solid var(--border-green)' }}>
         <div className="px-4 py-3 flex items-center gap-3" style={{ background: '#357a1e' }}>
-          <TrainIcon size={18} color="white" />
-          <span style={{ fontSize: 14, fontWeight: 800, color: 'white', fontFamily: 'inherit' }}>Stouffville Line</span>
+          {isBus ? <BusIcon size={18} color="white" /> : <TrainIcon size={18} color="white" />}
+          <span style={{ fontSize: 14, fontWeight: 800, color: 'white', fontFamily: 'inherit' }}>{route.line}</span>
         </div>
         <div className="px-4 py-3" style={{ background: 'var(--surface-card)' }}>
           <div className="flex items-center justify-between mb-2">
             <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>1 Adult</span>
-            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>$9.05</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{route.eTicketPrice}</span>
           </div>
           <div className="flex items-center justify-between" style={{ borderTop: '1px solid var(--border-color)', paddingTop: 8 }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>Total</span>
-            <span style={{ fontSize: 20, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>$9.05</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{route.eTicketPrice}</span>
           </div>
         </div>
         <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'var(--surface-green-soft)' }}>
           <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>PRESTO alternative</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>$7.62 (save $1.43)</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#357a1e', fontFamily: 'inherit' }}>{route.prestoPrice} (save {route.prestoSavings})</span>
         </div>
       </div>
 
@@ -107,7 +110,7 @@ function FareResult({ type, onReset }: { type: 'eticket' | 'passes'; onReset: ()
         style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, color: 'white', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
         onClick={() => { setPurchaseType('eticket'); navigate('payment') }}
       >
-        Buy E-Ticket — $9.05
+        Buy E-Ticket — {route.eTicketPrice}
       </button>
       <button
         className="pressable w-full py-3 rounded-2xl"

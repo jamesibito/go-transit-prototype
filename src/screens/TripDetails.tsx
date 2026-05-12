@@ -28,7 +28,7 @@ function TransitMap({ label1, label2 }: { label1: string; label2: string }) {
 }
 
 export default function TripDetails() {
-  const { goBack, navigate, favorites, toggleFavorite, selectedRoute } = useNav()
+  const { goBack, navigate, favorites, toggleFavorite, selectedRoute, setPurchaseType } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const tripId = `${route.key}-${route.stops[0].time.replace(/[\s:]/g, '').toLowerCase()}`
   const isFavorited = favorites.has(tripId)
@@ -151,7 +151,7 @@ export default function TripDetails() {
         <button
           className="pressable w-full py-4 rounded-2xl mt-3 mb-4"
           style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, color: 'white', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
-          onClick={() => navigate('payment')}
+          onClick={() => { setPurchaseType('eticket'); navigate('payment') }}
         >
           Buy E-Ticket
         </button>

@@ -10,7 +10,6 @@ export default function Payment() {
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const isPass = purchaseType === 'pass'
   const hasFareDetails = fareDetails.totalPrice > 0
-  const displayLabel = isPass ? 'One-Day Pass' : 'E-Ticket'
   const [selected, setSelected] = useState<PaymentMethod>(prestoConnected ? 'presto' : 'visa')
 
   // Use fareDetails total if available (from Fares flow), otherwise single ticket price
@@ -19,12 +18,15 @@ export default function Payment() {
   const prestoRatio = prestoBasePrice / parseFloat(route.eTicketPrice.replace('$', ''))
   const prestoTotal = hasFareDetails ? fareDetails.totalPrice * prestoRatio : prestoBasePrice
   const passPrice = hasFareDetails ? fareDetails.totalPrice : 10
+  const passPrestoPrice = Math.round(passPrice * 0.9 * 100) / 100 // 10% PRESTO discount on passes
 
   const numericPrice = selected === 'presto'
-    ? (isPass ? passPrice : prestoTotal)
+    ? (isPass ? passPrestoPrice : prestoTotal)
     : (isPass ? passPrice : eTicketPrice)
   const displayPrice = `$${numericPrice.toFixed(2)}`
   const passengerLabel = hasFareDetails ? fareDetails.passengerLabel : '1 Adult'
+  // For passes, passengerLabel already describes the purchase; for e-tickets, show type + label
+  const summaryLabel = isPass ? passengerLabel : `E-Ticket · ${passengerLabel}`
   const [saveCard, setSaveCard] = useState(true)
   const [processing, setProcessing] = useState(false)
 
@@ -65,9 +67,9 @@ export default function Payment() {
                 <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{route.from} → {route.to}</span>
               </div>
             )}
-            <div className="flex items-center justify-between">
-              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{displayLabel} · {passengerLabel}</span>
-              <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{displayPrice}</span>
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex-1 min-w-0" style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{summaryLabel}</span>
+              <span className="shrink-0" style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{displayPrice}</span>
             </div>
             {isPass && (
               <div className="flex items-center justify-between mt-1">
@@ -207,37 +209,43 @@ export default function Payment() {
       )}
 
       {/* PRESTO savings hint */}
-      {selected !== 'presto' && prestoConnected && (
-        <div className="px-5 pb-4">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}>
-            <PrestoLogo size={16} />
-            <p style={{ fontSize: 13, color: 'var(--accent-green)', fontFamily: 'inherit', fontWeight: 600, flex: 1 }}>
-              Pay with PRESTO and save {route.prestoSavings}
-            </p>
+      {selected !== 'presto' && prestoConnected && (() => {
+        const savingsAmount = isPass ? (passPrice - passPrestoPrice) : (eTicketPrice - prestoTotal)
+        return savingsAmount > 0 ? (
+          <div className="px-5 pb-4">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}>
+              <PrestoLogo size={16} />
+              <p style={{ fontSize: 13, color: 'var(--accent-green)', fontFamily: 'inherit', fontWeight: 600, flex: 1 }}>
+                Pay with PRESTO and save ${savingsAmount.toFixed(2)}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        ) : null
+      })()}
 
       {/* Not connected hint — tappable to connect inline */}
-      {!prestoConnected && (
-        <div className="px-5 pb-4">
-          <button
-            className="pressable w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left"
-            style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}
-            onClick={() => {
-              setPrestoConnected(true)
-              setSelected('presto')
-              showToast('PRESTO Connected', 'Card •••• 4821 linked successfully')
-            }}
-          >
-            <PrestoLogo size={16} />
-            <p style={{ fontSize: 13, color: 'var(--accent-green)', fontFamily: 'inherit', fontWeight: 700, flex: 1 }}>
-              Connect PRESTO to save {route.prestoSavings}
-            </p>
-            <ChevronRight size={16} color="#357a1e" />
-          </button>
-        </div>
-      )}
+      {!prestoConnected && (() => {
+        const savingsAmount = isPass ? (passPrice - passPrestoPrice) : (eTicketPrice - prestoTotal)
+        return savingsAmount > 0 ? (
+          <div className="px-5 pb-4">
+            <button
+              className="pressable w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left"
+              style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}
+              onClick={() => {
+                setPrestoConnected(true)
+                setSelected('presto')
+                showToast('PRESTO Connected', 'Card •••• 4821 linked successfully')
+              }}
+            >
+              <PrestoLogo size={16} />
+              <p style={{ fontSize: 13, color: 'var(--accent-green)', fontFamily: 'inherit', fontWeight: 700, flex: 1 }}>
+                Connect PRESTO to save ${savingsAmount.toFixed(2)}
+              </p>
+              <ChevronRight size={16} color="#357a1e" />
+            </button>
+          </div>
+        ) : null
+      })()}
 
       {/* Pay button */}
       <div className="px-5 pb-4">

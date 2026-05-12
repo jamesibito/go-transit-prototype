@@ -106,7 +106,7 @@ function EditModal({ label, value, onSave, onCancel, type = 'text' }: EditModalP
 }
 
 export default function Account() {
-  const { showToast } = useNav()
+  const { showToast, goHome } = useNav()
 
   const [name, setName] = useState('John Smith')
   const [email, setEmail] = useState('john.smith@email.com')
@@ -238,7 +238,7 @@ export default function Account() {
         <button
           className="pressable w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl"
           style={{ background: 'var(--surface-primary)', border: '1px solid var(--border-color)' }}
-          onClick={() => showToast('Signed out', 'See you next time!')}
+          onClick={() => { showToast('Signed out', 'See you next time!'); goHome() }}
         >
           <LogOutIcon size={18} color="#dc2626" />
           <span style={{ fontSize: 15, fontWeight: 700, color: '#dc2626', fontFamily: 'inherit' }}>Sign Out</span>

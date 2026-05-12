@@ -184,9 +184,14 @@ export default function Fares() {
   const [youth, setYouth] = useState(0)
   const [children, setChildren] = useState(0)
   const [passQty, setPassQty] = useState(0)
+  const [group2Qty, setGroup2Qty] = useState(0)
+  const [group3Qty, setGroup3Qty] = useState(0)
+  const [group4Qty, setGroup4Qty] = useState(0)
+  const [group5Qty, setGroup5Qty] = useState(0)
 
   const isEticket = faresTab === 'eticket'
 
+  const [resetKey, setResetKey] = useState(0)
   const handleReset = () => {
     setFareCalculated(false)
     setAdults(1)
@@ -194,7 +199,12 @@ export default function Fares() {
     setYouth(0)
     setChildren(0)
     setPassQty(0)
+    setGroup2Qty(0)
+    setGroup3Qty(0)
+    setGroup4Qty(0)
+    setGroup5Qty(0)
     setReturnTrip(false)
+    setResetKey(k => k + 1) // force QuantitySelector remount
   }
   const handleTabSwitch = (tab: 'eticket' | 'passes') => {
     setFaresTab(tab)
@@ -206,9 +216,20 @@ export default function Fares() {
   const eticketTotal = calcFare(basePrice, adults, seniors, youth, returnTrip)
   const passengerLabel = buildPassengerLabel(adults, seniors, youth, children)
 
+  // Calculate pass totals
+  const passTotal = (passQty * 10) + (group2Qty * 30) + (group3Qty * 40) + (group4Qty * 50) + (group5Qty * 50)
+  const passLabelParts: string[] = []
+  if (passQty > 0) passLabelParts.push(`One-Day Pass × ${passQty}`)
+  if (group2Qty > 0) passLabelParts.push(`Group of 2 × ${group2Qty}`)
+  if (group3Qty > 0) passLabelParts.push(`Group of 3 × ${group3Qty}`)
+  if (group4Qty > 0) passLabelParts.push(`Group of 4 × ${group4Qty}`)
+  if (group5Qty > 0) passLabelParts.push(`Group of 5 × ${group5Qty}`)
+  const passLabel = passLabelParts.length > 0 ? passLabelParts.join(', ') : 'One-Day Pass × 1'
+  const passFinalTotal = passTotal > 0 ? passTotal : 10
+
   const fareInfo: FareDetails = isEticket
     ? { adults, seniors, youth, children, returnTrip, totalPrice: eticketTotal, passengerLabel }
-    : { adults: passQty || 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: (passQty || 1) * 10, passengerLabel: `One-Day Pass × ${passQty || 1}` }
+    : { adults: passQty || 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: passFinalTotal, passengerLabel: passLabel }
 
   return (
     <div className="min-h-full" style={{ background: 'var(--surface-primary)' }}>
@@ -282,7 +303,7 @@ export default function Fares() {
                     <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{label}</p>
                     <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{subtitle}</p>
                   </div>
-                  <QuantitySelector initial={initial} onChange={setter} />
+                  <QuantitySelector key={`${label}-${resetKey}`} initial={initial} onChange={setter} />
                 </div>
               ))}
             </div>
@@ -307,23 +328,23 @@ export default function Fares() {
                 <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>One-Day Pass</p>
                 <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>$10 · All zones</p>
               </div>
-              <QuantitySelector onChange={setPassQty} />
+              <QuantitySelector key={`daypass-${resetKey}`} onChange={setPassQty} />
             </div>
 
             <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', marginBottom: 16 }}>Weekdays</h3>
             <div className="flex flex-col gap-4">
               {[
-                { label: 'Group Pass for 2', price: '$30' },
-                { label: 'Group Pass for 3', price: '$40' },
-                { label: 'Group Pass for 4', price: '$50' },
-                { label: 'Group Pass for 5', price: '$50' },
-              ].map(({ label, price }) => (
+                { label: 'Group Pass for 2', price: '$30', setter: setGroup2Qty },
+                { label: 'Group Pass for 3', price: '$40', setter: setGroup3Qty },
+                { label: 'Group Pass for 4', price: '$50', setter: setGroup4Qty },
+                { label: 'Group Pass for 5', price: '$50', setter: setGroup5Qty },
+              ].map(({ label, price, setter }) => (
                 <div key={label} className="flex items-center justify-between">
                   <div>
                     <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{label}</p>
                     <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>{price}</p>
                   </div>
-                  <QuantitySelector />
+                  <QuantitySelector key={`${label}-${resetKey}`} onChange={setter} />
                 </div>
               ))}
             </div>

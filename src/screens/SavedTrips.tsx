@@ -111,6 +111,13 @@ export default function SavedTrips() {
         <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>Saved Trips</span>
       </div>
 
+      {/* Explanatory text */}
+      <div className="px-5 pb-4">
+        <p style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', lineHeight: 1.5 }}>
+          Save your regular trips for faster booking and to get notified on service alerts that might affect your travel time.
+        </p>
+      </div>
+
       {/* Summary */}
       <div className="px-5 pb-4">
         <div className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: 'var(--surface-green-soft)', border: '1px solid var(--border-green)' }}>

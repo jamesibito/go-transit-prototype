@@ -127,6 +127,12 @@ html, body {
 }
 .screen::-webkit-scrollbar { display: none; }
 
+/* Themed scrollbars for inner scroll areas */
+.phone-shell ::-webkit-scrollbar { width: 4px; }
+.phone-shell ::-webkit-scrollbar-track { background: transparent; }
+.phone-shell ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+.phone-shell.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+
 /* Nav title */
 .nav-title {
   font-size: 18px;
@@ -184,4 +190,22 @@ p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0; }
 }
 .shimmer {
   animation: shimmer 1.2s ease-in-out infinite;
+}
+
+/* Marquee / ticker for truncated text */
+@keyframes marquee-scroll {
+  0%, 20% { transform: translateX(0); }
+  50%, 70% { transform: translateX(var(--marquee-distance, -30%)); }
+  100% { transform: translateX(0); }
+}
+.marquee-container {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}
+.marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-scroll 6s ease-in-out infinite;
+  animation-delay: 2s;
 }

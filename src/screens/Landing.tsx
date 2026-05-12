@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNav } from '../App'
 import { MenuHamburger, GOLogo, ArrowRight, TrainIcon, BusIcon, ClockIcon, MoreVerticalIcon, BellOffIcon, BellIcon, TrashIcon, FaresIcon, AlertIcon } from '../components/Icons'
+import MarqueeText from '../components/MarqueeText'
 
 function getNextDepartures() {
   const now = new Date()
@@ -113,7 +114,7 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
             {isBus ? <BusIcon size={20} color="#357a1e" /> : <TrainIcon size={20} color="#357a1e" />}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="truncate flex items-center gap-2" style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>
+            <MarqueeText className="flex items-center gap-2" style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>
               {from} → {to}
               {muted && (
                 <span className="shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded" style={{ background: 'var(--surface-secondary)', fontSize: 10, fontWeight: 700, color: 'var(--text-muted)' }}>
@@ -121,7 +122,7 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
                   Muted
                 </span>
               )}
-            </div>
+            </MarqueeText>
             <div className="mt-0.5 truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>
               {line}
             </div>
@@ -209,7 +210,7 @@ function ActiveTripCard() {
             End Trip
           </button>
         </div>
-        <button className="pressable w-full text-left px-4 py-3.5" style={{ background: 'var(--surface-card)' }} onClick={() => navigate('tripDetails')}>
+        <button className="pressable w-full text-left px-4 py-3.5" style={{ background: 'var(--surface-card)' }} onClick={() => navigate('ticketView')}>
           <div className="flex items-center justify-between mb-2">
             <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{activeTrip.line}</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'inherit' }}>{activeTrip.departure} → {activeTrip.arrival}</span>

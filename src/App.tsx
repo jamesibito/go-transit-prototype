@@ -14,10 +14,11 @@ import SavedCards from './screens/SavedCards'
 import AccessibilityFeatures from './screens/AccessibilityFeatures'
 import SavedTrips from './screens/SavedTrips'
 import Account from './screens/Account'
+import TicketView from './screens/TicketView'
 import MenuDrawer from './components/MenuDrawer'
 import StatusBar from './components/StatusBar'
 
-export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips' | 'account'
+export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips' | 'account' | 'ticketView'
 
 export interface SavedLine {
   id: string
@@ -88,14 +89,14 @@ export const NavContext = createContext<NavContextType>({} as NavContextType)
 export const useNav = () => useContext(NavContext)
 
 const SCREEN_DEPTH: Record<ScreenName, number> = {
-  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2, savedTrips: 1, account: 2,
+  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2, savedTrips: 1, account: 2, ticketView: 1,
 }
 
 const DEFAULT_SAVED_LINES: SavedLine[] = [
   { id: 'sl-1', from: 'Miliken GO', to: 'Union Station GO', line: 'Stouffville', muted: false },
+  { id: 'sl-4', from: 'Mississauga City Centre', to: 'Markham Stouffville Hospital', line: 'Highway 407 Bus', muted: true },
   { id: 'sl-2', from: 'Union Station GO', to: 'Miliken GO', line: 'Stouffville', muted: false },
   { id: 'sl-3', from: 'Union Station GO', to: 'Oshawa GO', line: 'Lakeshore East', muted: false },
-  { id: 'sl-4', from: 'Mississauga City Centre', to: 'Markham Stouffville Hospital', line: 'Highway 407 Bus', muted: true },
 ]
 
 export default function App() {
@@ -151,7 +152,7 @@ export default function App() {
     setSavedLines(prev => prev.filter(l => l.id !== id))
   }, [])
 
-  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility', 'savedTrips', 'account']
+  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility', 'savedTrips', 'account', 'ticketView']
   const screenNodes: Record<ScreenName, React.ReactNode> = {
     landing: <Landing />,
     search: <SearchTrip />,
@@ -168,6 +169,7 @@ export default function App() {
     accessibility: <AccessibilityFeatures />,
     savedTrips: <SavedTrips />,
     account: <Account />,
+    ticketView: <TicketView />,
   }
 
   const currentDepth = SCREEN_DEPTH[currentScreen]

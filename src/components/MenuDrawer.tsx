@@ -87,7 +87,7 @@ export default function MenuDrawer({ open, onClose }: MenuDrawerProps) {
         <div className="mt-auto px-6 pb-12">
           <div style={{ width: 60, height: 3, background: 'rgba(255,255,255,0.2)', borderRadius: 2 }} />
           <p style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'inherit' }}>
-            GO Transit Concept App · v4.3
+            GO Transit Concept App · v4.4
           </p>
           <a
             href="https://jamesibitoye.framer.website"

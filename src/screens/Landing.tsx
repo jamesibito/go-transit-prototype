@@ -72,7 +72,11 @@ function NextDepartureCard({ onTap }: { onTap: () => void }) {
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'inherit', marginTop: 2, fontWeight: 600 }}>
             {next.from} → {next.to}
           </p>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 1 }}>Stouffville Line</p>
+          {/* Match the TripCard departure-variant hierarchy — small uppercase
+              tag so the line name doesn't compete with the route above. */}
+          <p style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+            Stouffville Line
+          </p>
         </div>
       </div>
       {departures.length > 1 && (
@@ -135,7 +139,10 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
                 </span>
               )}
             </MarqueeText>
-            <div className="mt-0.5 truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>
+            {/* Same demoted line-tag styling as the TripCard recent-trips
+                variant — small uppercase, clearly subordinate to the route
+                title above. */}
+            <div className="mt-1.5 truncate" style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', fontFamily: 'inherit' }}>
               {line}
             </div>
           </div>

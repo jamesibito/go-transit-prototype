@@ -101,7 +101,7 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
-  const isBus = line.toLowerCase().includes('bus')
+  const isBus = line.toLowerCase().includes('bus') || /^route\s/i.test(line) || line.toLowerCase().startsWith('bus ')
 
   return (
     <div className="relative">
@@ -183,7 +183,7 @@ function ActiveTripCard() {
 
   if (!activeTrip) return null
 
-  const isBus = activeTrip.line.toLowerCase().includes('bus')
+  const isBus = activeTrip.line.toLowerCase().includes('bus') || /^route\s/i.test(activeTrip.line)
 
   return (
     <div className="px-5 pb-4">

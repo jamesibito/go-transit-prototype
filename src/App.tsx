@@ -99,7 +99,8 @@ const DEFAULT_SAVED_LINES: SavedLine[] = [
   { id: 'sl-1', from: 'Milliken GO', to: 'Union Station GO', line: 'Stouffville', muted: false },
   { id: 'sl-2', from: 'Union Station GO', to: 'Milliken GO', line: 'Stouffville', muted: false },
   { id: 'sl-3', from: 'Union Station GO', to: 'Oshawa GO', line: 'Lakeshore East', muted: false },
-  { id: 'sl-4', from: 'Bramalea GO', to: 'Union Station GO', line: 'Kitchener', muted: true },
+  { id: 'sl-4', from: 'Newmarket GO', to: 'Pearson Airport Terminal 1', line: 'Route 34 Bus', muted: false },
+  { id: 'sl-5', from: 'Bramalea GO', to: 'Union Station GO', line: 'Kitchener', muted: true },
 ]
 
 export default function App() {

@@ -18,12 +18,36 @@ function SkeletonCard() {
   )
 }
 
+// Format a date for the sheet header:
+//   today  → "Today, Fri, May 15"
+//   tomr   → "Tomorrow, Sat, May 16"
+//   other  → "Mon, May 19"
+function formatHeaderDate(d: Date): string {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const long = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  if (diffDays === 0) return `Today, ${long}`
+  if (diffDays === 1) return `Tomorrow, ${long}`
+  return long
+}
+
+// True if a route's line label suggests a bus journey.
+function isBusRoute(line: string): boolean {
+  const l = line.toLowerCase()
+  return l.includes('bus') || /^route\s/i.test(line) || l.includes('bus ')
+}
+
 export default function SearchResults() {
   const { goBack, navigate, selectedRoute, searchDateTime } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
-  const upcoming = generateDepartures(route, 5, searchDateTime ?? new Date())
+  const atDate = searchDateTime ?? new Date()
+  const upcoming = generateDepartures(route, 5, atDate)
   const [sheetVisible, setSheetVisible] = useState(true)
   const [loading, setLoading] = useState(true)
+  const headerDate = formatHeaderDate(atDate)
+  const cardType: 'bus' | 'train' = isBusRoute(route.line) ? 'bus' : 'train'
 
   useEffect(() => {
     if (sheetVisible) {
@@ -35,13 +59,14 @@ export default function SearchResults() {
 
   return (
     <div className="min-h-full relative" style={{ background: 'var(--surface-primary)', overflow: 'hidden' }}>
-      {/* Dimmed background */}
+      {/* Dimmed background — covers the full screen so the layout doesn't
+          show empty white space between the search form and the sheet.
+          The sheet sits above with a higher z-index. */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: sheetVisible ? 'rgba(0,0,0,0.18)' : 'transparent',
+        background: sheetVisible ? 'rgba(0,0,0,0.32)' : 'transparent',
         transition: 'background 350ms ease',
         zIndex: 1, pointerEvents: sheetVisible ? 'auto' : 'none',
-        bottom: '74%',
       }} onClick={() => setSheetVisible(false)} />
 
       {/* Search form (behind sheet) */}
@@ -82,7 +107,7 @@ export default function SearchResults() {
 
         <div className="px-5 pb-3 shrink-0 flex items-center justify-between">
           <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>Upcoming</span>
-          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>Today, {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{headerDate}</span>
         </div>
 
         <div className="overflow-y-auto px-5 pb-6" style={{ flex: 1 }}>
@@ -105,7 +130,7 @@ export default function SearchResults() {
                       <span style={{ fontSize: 11, fontWeight: 800, color: 'white', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Next</span>
                     </div>
                   )}
-                  <TripCard {...trip} type={selectedRoute === 'highway-407' ? 'bus' : 'train'} onClick={() => navigate('tripDetails')} />
+                  <TripCard {...trip} type={cardType} onClick={() => navigate('tripDetails')} />
                 </div>
               ))
             )}

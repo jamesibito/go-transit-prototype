@@ -10,7 +10,7 @@ const history = [
   { from: 'Milliken GO', to: 'Union Station GO', line: 'Stouffville', type: 'train' as const },
   { from: 'Union Station GO', to: 'Oshawa GO', line: 'Lakeshore East', type: 'train' as const },
   { from: 'Union Station GO', to: 'Aurora GO', line: 'Barrie', type: 'train' as const },
-  { from: 'Union Station GO', to: 'Burlington GO', line: 'Lakeshore West', type: 'train' as const },
+  { from: 'Newmarket GO', to: 'Pearson Airport Terminal 1', line: 'Route 34 Bus', type: 'bus' as const },
   { from: 'Bramalea GO', to: 'Union Station GO', line: 'Kitchener', type: 'train' as const },
 ]
 
@@ -98,8 +98,33 @@ export default function SearchTrip() {
   }, [timeValue, timeOptions])
 
   const selectedDate = useMemo(() => {
-    return dateOptions.find(d => d.value === dateValue)
+    const inWindow = dateOptions.find(d => d.value === dateValue)
+    if (inWindow) return inWindow
+    // Date is outside the 14-day window — synthesize a label for the
+    // header summary so it still reads cleanly.
+    const [yyyy, mm, dd] = dateValue.split('-').map(Number)
+    const d = new Date(yyyy, mm - 1, dd)
+    return {
+      value: dateValue,
+      date: d,
+      label: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      sublabel: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    }
   }, [dateValue, dateOptions])
+
+  // True when the chosen date is beyond the 14-day pill window
+  const isCustomDate = useMemo(
+    () => !dateOptions.some(d => d.value === dateValue),
+    [dateValue, dateOptions]
+  )
+
+  const dateInputRef = useRef<HTMLInputElement>(null)
+  const openCalendar = () => {
+    const el = dateInputRef.current
+    if (!el) return
+    if (typeof (el as any).showPicker === 'function') (el as any).showPicker()
+    else el.click()
+  }
 
   const handleHistoryClick = (histFrom: string, histTo: string) => {
     const key = getRouteKeyFromStations(histFrom, histTo)
@@ -243,7 +268,50 @@ export default function SearchTrip() {
                   </button>
                 )
               })}
+              {/* Pill showing the custom-picked date when it's beyond the 14-day window */}
+              {isCustomDate && selectedDate && (
+                <button
+                  className="pressable shrink-0 px-3.5 py-2 rounded-xl text-center"
+                  style={{
+                    background: '#357a1e',
+                    border: '1px solid #357a1e',
+                    minWidth: 70,
+                  }}
+                  onClick={openCalendar}
+                >
+                  <p style={{ fontSize: 13, fontWeight: 800, fontFamily: 'inherit', color: '#ffffff', lineHeight: 1.2 }}>{selectedDate.label}</p>
+                  <p style={{ fontSize: 11, fontFamily: 'inherit', marginTop: 1, color: 'rgba(255,255,255,0.85)' }}>{selectedDate.sublabel}</p>
+                </button>
+              )}
+              {/* Calendar pill — opens the OS-native date picker for any future date */}
+              <button
+                className="pressable shrink-0 px-3 py-2 rounded-xl flex items-center justify-center gap-1.5"
+                style={{
+                  background: 'var(--surface-card)',
+                  border: '1px dashed var(--border-color)',
+                  minWidth: 56,
+                }}
+                onClick={openCalendar}
+                aria-label="Pick another date"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#357a1e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8"  y1="2" x2="8"  y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>More</span>
+              </button>
             </div>
+            {/* Hidden native input — its onChange writes to dateValue */}
+            <input
+              ref={dateInputRef}
+              type="date"
+              value={dateValue}
+              min={dateOptions[0].value}
+              onChange={e => { if (e.target.value) setDateValue(e.target.value) }}
+              style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', width: 0, height: 0 }}
+            />
           </div>
         )}
 

@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Case study content (portfolio assets — kept outside repo)
+case-study/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,3 +25,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+public/case-study/

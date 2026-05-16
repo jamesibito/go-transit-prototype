@@ -234,7 +234,9 @@ export default function App() {
           )
         })}
 
-        {/* Global toast — above scroll containers so always visible */}
+        {/* Global toast — above scroll containers so always visible.
+            White border + dark shadow ensure separation on green-heavy
+            screens like Ticket Confirmation where it would otherwise blend. */}
         <div style={{
           position: 'absolute', top: 56, left: 20, right: 20, zIndex: 150,
           background: '#357a1e', borderRadius: 16, padding: '14px 20px',
@@ -242,7 +244,8 @@ export default function App() {
           transform: toast.visible ? 'translateY(0)' : 'translateY(-120px)',
           opacity: toast.visible ? 1 : 0,
           transition: 'transform 350ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease',
-          boxShadow: '0 8px 32px rgba(53,122,30,0.35)',
+          border: '2px solid rgba(255,255,255,0.95)',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.32), 0 4px 12px rgba(0,0,0,0.18)',
           pointerEvents: toast.visible ? 'auto' : 'none',
         }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

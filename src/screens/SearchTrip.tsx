@@ -134,12 +134,9 @@ export default function SearchTrip() {
   }
 
   const handleSearch = () => {
-    if (from && to) {
-      const key = getRouteKeyFromStations(from, to)
-      setSelectedRoute(key)
-    } else {
-      setSelectedRoute('stouffville')
-    }
+    if (!from || !to || from === to) return  // button is disabled in this case anyway
+    const key = getRouteKeyFromStations(from, to)
+    setSelectedRoute(key)
     if (useNow) {
       setSearchDateTime(null)
     } else {
@@ -150,6 +147,9 @@ export default function SearchTrip() {
     }
     navigate('results')
   }
+
+  // Search is only valid once both endpoints are picked AND they differ
+  const canSearch = Boolean(from && to && from !== to)
 
   const handleSwap = () => {
     const tmp = from
@@ -340,11 +340,20 @@ export default function SearchTrip() {
         </button>
 
         <button
-          className="pressable w-full mt-4 py-4 rounded-2xl text-white font-bold text-lg"
-          style={{ background: '#357a1e', fontSize: 16, fontWeight: 800, fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(53,122,30,0.3)' }}
+          className={canSearch ? 'pressable w-full mt-4 py-4 rounded-2xl text-white font-bold text-lg' : 'w-full mt-4 py-4 rounded-2xl text-white font-bold text-lg'}
+          style={{
+            background: canSearch ? '#357a1e' : 'var(--surface-secondary)',
+            color: canSearch ? '#ffffff' : 'var(--text-muted)',
+            fontSize: 16, fontWeight: 800, fontFamily: 'inherit',
+            boxShadow: canSearch ? '0 4px 16px rgba(53,122,30,0.3)' : 'none',
+            border: canSearch ? 'none' : '1px solid var(--border-color)',
+            cursor: canSearch ? 'pointer' : 'not-allowed',
+            transition: 'background 200ms ease, color 200ms ease',
+          }}
+          disabled={!canSearch}
           onClick={handleSearch}
         >
-          See Schedule
+          {canSearch ? 'See Schedule' : (!from && !to ? 'Pick a From and To station' : from === to ? 'Pick a different destination' : !from ? 'Pick a From station' : 'Pick a To station')}
         </button>
       </div>
 

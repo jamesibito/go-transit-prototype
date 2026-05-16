@@ -1,19 +1,39 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNav } from '../App'
 import { ChevronLeft, TrainIcon, BusIcon } from '../components/Icons'
 
-function QRCode() {
-  const rows = 11
-  const cols = 11
-  const cells: boolean[][] = []
-  for (let r = 0; r < rows; r++) {
-    cells[r] = []
-    for (let c = 0; c < cols; c++) {
-      const isCornerBlock =
-        (r < 3 && c < 3) || (r < 3 && c >= cols - 3) || (r >= rows - 3 && c < 3)
-      cells[r][c] = isCornerBlock || Math.random() > 0.45
+function QRCode({ seed }: { seed: string }) {
+  // Deterministic pattern keyed off the trip identifier — keeps the QR
+  // visually stable across re-renders (Math.random() was re-rolling per render).
+  const cells = useMemo(() => {
+    const rows = 11
+    const cols = 11
+    let h = 2166136261
+    for (let i = 0; i < seed.length; i++) {
+      h ^= seed.charCodeAt(i)
+      h = Math.imul(h, 16777619)
     }
-  }
+    let s = h >>> 0
+    const rand = () => {
+      s += 0x6D2B79F5
+      let t = s
+      t = Math.imul(t ^ (t >>> 15), t | 1)
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+    const grid: boolean[][] = []
+    for (let r = 0; r < rows; r++) {
+      grid[r] = []
+      for (let c = 0; c < cols; c++) {
+        const isCornerBlock =
+          (r < 3 && c < 3) || (r < 3 && c >= cols - 3) || (r >= rows - 3 && c < 3)
+        grid[r][c] = isCornerBlock || rand() > 0.45
+      }
+    }
+    return grid
+  }, [seed])
+  const rows = cells.length
+  const cols = cells[0].length
   const size = 6
   return (
     <svg width={cols * size} height={rows * size} viewBox={`0 0 ${cols * size} ${rows * size}`}>
@@ -162,7 +182,7 @@ export default function TicketView() {
             {/* QR Code */}
             <div className="flex flex-col items-center">
               <div style={{ padding: 12, background: 'var(--surface-primary)', borderRadius: 12, border: '1px solid var(--border-green)' }}>
-                <QRCode />
+                <QRCode seed={activeTrip?.ticketId ?? 'default-ticket'} />
               </div>
               <p style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 8, letterSpacing: '2px', fontWeight: 700 }}>
                 {activeTrip.ticketId}

@@ -54,7 +54,7 @@ export default function SplashScreen() {
           animation: 'splash-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
         }}
       >
-        <GOLogo size={92} color="#ffffff" />
+        <GOLogo size={76} color="#ffffff" />
       </div>
 
       <style>{`

@@ -40,7 +40,7 @@ function isBusRoute(line: string): boolean {
 }
 
 export default function SearchResults() {
-  const { goBack, navigate, selectedRoute, searchDateTime } = useNav()
+  const { goBack, navigate, selectedRoute, searchDateTime, setSelectedDeparture } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const atDate = searchDateTime ?? new Date()
   const upcoming = generateDepartures(route, 5, atDate)
@@ -130,7 +130,10 @@ export default function SearchResults() {
                       <span style={{ fontSize: 11, fontWeight: 800, color: 'white', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Next</span>
                     </div>
                   )}
-                  <TripCard {...trip} type={cardType} onClick={() => navigate('tripDetails')} />
+                  <TripCard {...trip} type={cardType} onClick={() => {
+                    setSelectedDeparture({ departure: trip.departure, arrival: trip.arrival })
+                    navigate('tripDetails')
+                  }} />
                 </div>
               ))
             )}

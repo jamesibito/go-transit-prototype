@@ -28,14 +28,21 @@ function TransitMap({ label1, label2 }: { label1: string; label2: string }) {
 }
 
 export default function TripDetails() {
-  const { goBack, navigate, favorites, toggleFavorite, selectedRoute, setPurchaseType, setFareDetails } = useNav()
+  const { goBack, navigate, favorites, toggleFavorite, selectedRoute, setPurchaseType, setFareDetails, selectedDeparture } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
-  // Generate realistic times based on current time (next departure ~10-15 min from now)
-  const now = new Date()
-  const depMin = now.getMinutes() + 10 + Math.floor(Math.random() * 5)
-  const depH = now.getHours() + Math.floor(depMin / 60)
-  const depM = depMin % 60
-  const departureStr = fmtTime(depH, depM)
+  // Use the departure the user actually tapped from the results list.
+  // Fall back to a synthesized "next ~10 min" departure only when the
+  // screen is reached without a chosen trip (e.g. deep-linked).
+  let departureStr: string
+  if (selectedDeparture) {
+    departureStr = selectedDeparture.departure
+  } else {
+    const now = new Date()
+    const depMin = now.getMinutes() + 10 + Math.floor(Math.random() * 5)
+    const depH = now.getHours() + Math.floor(depMin / 60)
+    const depM = depMin % 60
+    departureStr = fmtTime(depH, depM)
+  }
   const stops = generateStopTimes(route, departureStr)
   const firstTime = stops[0].time
   const lastTime = stops[stops.length - 1].time

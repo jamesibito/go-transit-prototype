@@ -76,6 +76,8 @@ function ScreenWithContext({ children, route = 'stouffville', dark = false }: { 
     setSelectedRoute: noop as (key: string) => void,
     searchDateTime: null,
     setSearchDateTime: noop as (d: Date | null) => void,
+    selectedDeparture: null,
+    setSelectedDeparture: noop as (d: { departure: string; arrival: string } | null) => void,
     purchaseType: 'eticket' as const,
     setPurchaseType: noop as (type: 'eticket' | 'pass') => void,
     fareDetails: { adults: 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: 0, passengerLabel: '1 Adult' },

@@ -77,11 +77,16 @@ function getTicketId(routeKey: string): string {
   return `GTX-2026-${month}${day}-${suffix}`
 }
 
+function isBusRouteLine(line: string): boolean {
+  const l = line.toLowerCase()
+  return l.includes('bus') || /^route\s/i.test(line)
+}
+
 export default function TicketConfirmation() {
-  const { navigate, showToast, selectedRoute, purchaseType, setActiveTrip, fareDetails } = useNav()
+  const { navigate, showToast, selectedRoute, purchaseType, setActiveTrip, fareDetails, selectedDeparture } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   const isPass = purchaseType === 'pass'
-  const isBus = selectedRoute === 'highway-407'
+  const isBus = isBusRouteLine(route.line)
   const hasFareDetails = fareDetails.totalPrice > 0
   const [walletAdded, setWalletAdded] = useState(false)
 
@@ -97,14 +102,22 @@ export default function TicketConfirmation() {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   const dateStr = `${days[today.getDay()]}, ${months[today.getMonth()]} ${today.getDate()}`
 
-  // Generate realistic departure/arrival times relative to now
-  const depMin = today.getMinutes() + 10 + Math.floor(Math.random() * 5)
-  const depH = today.getHours() + Math.floor(depMin / 60)
-  const depM = depMin % 60
-  const durMin = parseInt(route.duration)
-  const arrTotalMin = depH * 60 + depM + durMin
-  const departureTime = fmtTime(depH, depM)
-  const arrivalTime = fmtTime(Math.floor(arrTotalMin / 60), arrTotalMin % 60)
+  // Use the trip the user actually picked. Only synthesize a "next ~10 min"
+  // fallback if this screen is reached without a selected departure.
+  let departureTime: string
+  let arrivalTime: string
+  if (selectedDeparture) {
+    departureTime = selectedDeparture.departure
+    arrivalTime = selectedDeparture.arrival
+  } else {
+    const depMin = today.getMinutes() + 10 + Math.floor(Math.random() * 5)
+    const depH = today.getHours() + Math.floor(depMin / 60)
+    const depM = depMin % 60
+    const durMin = parseInt(route.duration)
+    const arrTotalMin = depH * 60 + depM + durMin
+    departureTime = fmtTime(depH, depM)
+    arrivalTime = fmtTime(Math.floor(arrTotalMin / 60), arrTotalMin % 60)
+  }
 
   const handleAddWallet = () => {
     if (walletAdded) return

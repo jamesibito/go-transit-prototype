@@ -1,42 +1,14 @@
 import { useState, useMemo } from 'react'
-import { ChevronLeft, TrainIcon, BusIcon } from './Icons'
+import { ChevronLeft, TrainIcon } from './Icons'
+import { STATIONS as NETWORK_STATIONS } from '../data/trips'
 
-// All GO Transit stations grouped by line
-const STATIONS = [
-  // Stouffville
-  { name: 'Miliken GO', line: 'Stouffville', type: 'train' as const },
-  { name: 'Agincourt GO', line: 'Stouffville', type: 'train' as const },
-  { name: 'Kennedy GO', line: 'Stouffville', type: 'train' as const },
-  { name: 'Scarborough GO', line: 'Stouffville / Lakeshore East', type: 'train' as const },
-  // Lakeshore East
-  { name: 'Danforth GO', line: 'Lakeshore East', type: 'train' as const },
-  { name: 'Eglinton GO', line: 'Lakeshore East', type: 'train' as const },
-  { name: 'Pickering GO', line: 'Lakeshore East', type: 'train' as const },
-  { name: 'Ajax GO', line: 'Lakeshore East', type: 'train' as const },
-  { name: 'Whitby GO', line: 'Lakeshore East', type: 'train' as const },
-  { name: 'Oshawa GO', line: 'Lakeshore East', type: 'train' as const },
-  // Barrie
-  { name: 'Downsview Park GO', line: 'Barrie', type: 'train' as const },
-  { name: 'Rutherford GO', line: 'Barrie', type: 'train' as const },
-  { name: 'Maple GO', line: 'Barrie', type: 'train' as const },
-  { name: 'King City GO', line: 'Barrie', type: 'train' as const },
-  { name: 'Aurora GO', line: 'Barrie', type: 'train' as const },
-  // Lakeshore West
-  { name: 'Exhibition GO', line: 'Lakeshore West', type: 'train' as const },
-  { name: 'Mimico GO', line: 'Lakeshore West', type: 'train' as const },
-  { name: 'Long Branch GO', line: 'Lakeshore West', type: 'train' as const },
-  { name: 'Port Credit GO', line: 'Lakeshore West', type: 'train' as const },
-  { name: 'Clarkson GO', line: 'Lakeshore West', type: 'train' as const },
-  { name: 'Oakville GO', line: 'Lakeshore West', type: 'train' as const },
-  { name: 'Burlington GO', line: 'Lakeshore West', type: 'train' as const },
-  // Union (hub)
-  { name: 'Union Station GO', line: 'All Lines', type: 'train' as const },
-  // Bus
-  { name: 'Mississauga City Centre', line: 'Highway 407 Bus', type: 'bus' as const },
-  { name: 'Brampton Gateway', line: 'Highway 407 Bus', type: 'bus' as const },
-  { name: 'VMC Bus Terminal', line: 'Highway 407 Bus', type: 'bus' as const },
-  { name: 'Markham Stouffville Hospital', line: 'Highway 407 Bus', type: 'bus' as const },
-]
+// Flat list of every GO Transit rail station across all 7 lines, sourced
+// from the network model in data/trips.ts. Union is shared across all lines.
+const STATIONS = NETWORK_STATIONS.map(s => ({
+  name: s.name,
+  line: s.lineLabel,
+  type: 'train' as const,
+}))
 
 interface StationPickerProps {
   label: string  // "From" or "To"
@@ -123,11 +95,7 @@ export default function StationPicker({ label, onSelect, onClose }: StationPicke
                 onClick={() => onSelect(station.name)}
               >
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--surface-green-light)' }}>
-                  {station.type === 'bus' ? (
-                    <BusIcon size={17} color="#357a1e" />
-                  ) : (
-                    <TrainIcon size={17} color="#357a1e" />
-                  )}
+                  <TrainIcon size={17} color="#357a1e" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="truncate" style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{station.name}</p>

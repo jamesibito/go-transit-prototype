@@ -7,11 +7,11 @@ import { getRouteKeyFromStations } from '../data/trips'
 import { SwapIcon, LocationPin, ClockIcon, ChevronDown } from '../components/Icons'
 
 const history = [
-  { from: 'Miliken GO', to: 'Union Station GO', line: 'Stouffville', type: 'train' as const },
+  { from: 'Milliken GO', to: 'Union Station GO', line: 'Stouffville', type: 'train' as const },
   { from: 'Union Station GO', to: 'Oshawa GO', line: 'Lakeshore East', type: 'train' as const },
   { from: 'Union Station GO', to: 'Aurora GO', line: 'Barrie', type: 'train' as const },
   { from: 'Union Station GO', to: 'Burlington GO', line: 'Lakeshore West', type: 'train' as const },
-  { from: 'Mississauga City Centre', to: 'Markham Stouffville Hospital', line: 'Highway 407 Bus', type: 'bus' as const },
+  { from: 'Bramalea GO', to: 'Union Station GO', line: 'Kitchener', type: 'train' as const },
 ]
 
 const TIME_OPTIONS = ['Now', 'In 30 min', 'In 1 hour', 'In 2 hours', '9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM']

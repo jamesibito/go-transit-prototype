@@ -372,7 +372,7 @@ function BeforePhone() {
       fontFamily: FONT,
     }}>
       <Tag text="Before — Figma Prototype" red />
-      <FigmaFrame src="/case-study/before/01-landing.png" alt="Original landing" width={240} label="" />
+      <FigmaFrame src="/case-study/before/01-landing.png" width={240} label="Original landing" />
       <div style={{ textAlign: 'center', maxWidth: 260 }}>
         <p style={{ fontSize: 15, fontWeight: 700, color: DARK, margin: '0 0 8px', fontFamily: FONT }}>
           3 taps to see next departure

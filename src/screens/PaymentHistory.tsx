@@ -16,15 +16,15 @@ interface Transaction {
 }
 
 const transactions: Transaction[] = [
-  { id: 't1', type: 'train', line: 'Stouffville Line', from: 'Miliken GO', to: 'Union Station GO', date: 'Today', time: '10:54 AM', amount: '$9.05', method: 'eticket', daysAgo: 0 },
-  { id: 't2', type: 'train', line: 'Stouffville Line', from: 'Union Station GO', to: 'Miliken GO', date: 'Today', time: '5:30 PM', amount: '$7.62', method: 'presto', daysAgo: 0 },
-  { id: 't3', type: 'train', line: 'Lakeshore East', from: 'Union Station GO', to: 'Oshawa GO', date: 'May 9', time: '9:15 AM', amount: '$10.40', method: 'presto', daysAgo: 2 },
-  { id: 't4', type: 'bus', line: 'Highway 407 Bus', from: 'Mississauga City Centre', to: 'Markham Stouffville Hospital', date: 'May 8', time: '3:20 PM', amount: '$6.90', method: 'presto', daysAgo: 3 },
-  { id: 't5', type: 'train', line: 'Barrie Line', from: 'Union Station GO', to: 'Aurora GO', date: 'May 7', time: '8:30 AM', amount: '$9.10', method: 'presto', daysAgo: 4 },
-  { id: 't6', type: 'train', line: 'Lakeshore West', from: 'Union Station GO', to: 'Burlington GO', date: 'May 5', time: '10:00 AM', amount: '$11.50', method: 'eticket', daysAgo: 6 },
-  { id: 't7', type: 'train', line: 'Stouffville Line', from: 'Miliken GO', to: 'Union Station GO', date: 'May 4', time: '7:45 AM', amount: '$7.62', method: 'presto', daysAgo: 7 },
-  { id: 't8', type: 'train', line: 'Lakeshore East', from: 'Oshawa GO', to: 'Union Station GO', date: 'Apr 28', time: '6:15 PM', amount: '$10.40', method: 'presto', daysAgo: 13 },
-  { id: 't9', type: 'train', line: 'Stouffville Line', from: 'Union Station GO', to: 'Miliken GO', date: 'Apr 25', time: '5:00 PM', amount: '$7.62', method: 'presto', daysAgo: 16 },
+  { id: 't1', type: 'train', line: 'Stouffville Line', from: 'Milliken GO', to: 'Union Station GO', date: 'Today', time: '10:54 AM', amount: '$6.25', method: 'eticket', daysAgo: 0 },
+  { id: 't2', type: 'train', line: 'Stouffville Line', from: 'Union Station GO', to: 'Milliken GO', date: 'Today', time: '5:30 PM', amount: '$5.31', method: 'presto', daysAgo: 0 },
+  { id: 't3', type: 'train', line: 'Lakeshore East', from: 'Union Station GO', to: 'Oshawa GO', date: 'May 9', time: '9:15 AM', amount: '$10.07', method: 'presto', daysAgo: 2 },
+  { id: 't4', type: 'train', line: 'Kitchener Line', from: 'Bramalea GO', to: 'Union Station GO', date: 'May 8', time: '7:48 AM', amount: '$7.35', method: 'presto', daysAgo: 3 },
+  { id: 't5', type: 'train', line: 'Barrie Line', from: 'Union Station GO', to: 'Aurora GO', date: 'May 7', time: '8:30 AM', amount: '$7.35', method: 'presto', daysAgo: 4 },
+  { id: 't6', type: 'train', line: 'Lakeshore West', from: 'Union Station GO', to: 'Burlington GO', date: 'May 5', time: '10:00 AM', amount: '$11.10', method: 'eticket', daysAgo: 6 },
+  { id: 't7', type: 'train', line: 'Stouffville Line', from: 'Milliken GO', to: 'Union Station GO', date: 'May 4', time: '7:45 AM', amount: '$5.31', method: 'presto', daysAgo: 7 },
+  { id: 't8', type: 'train', line: 'Lakeshore East', from: 'Oshawa GO', to: 'Union Station GO', date: 'Apr 28', time: '6:15 PM', amount: '$10.07', method: 'presto', daysAgo: 13 },
+  { id: 't9', type: 'train', line: 'Stouffville Line', from: 'Union Station GO', to: 'Milliken GO', date: 'Apr 25', time: '5:00 PM', amount: '$5.31', method: 'presto', daysAgo: 16 },
 ]
 
 type FilterTab = 'all' | 'week' | 'month' | 'presto' | 'eticket'

@@ -11,8 +11,8 @@ import Settings from './screens/Settings'
 import { NavContext, type ScreenName, type SavedLine } from './App'
 
 const DEFAULT_SAVED_LINES: SavedLine[] = [
-  { id: 'sl-1', from: 'Miliken GO', to: 'Union Station GO', line: 'Stouffville', muted: false },
-  { id: 'sl-2', from: 'Union Station GO', to: 'Miliken GO', line: 'Stouffville', muted: false },
+  { id: 'sl-1', from: 'Milliken GO', to: 'Union Station GO', line: 'Stouffville', muted: false },
+  { id: 'sl-2', from: 'Union Station GO', to: 'Milliken GO', line: 'Stouffville', muted: false },
 ]
 
 function ScreenShell({ children, label, dark = false }: { children: React.ReactNode; label: string; dark?: boolean }) {

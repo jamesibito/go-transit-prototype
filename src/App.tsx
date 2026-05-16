@@ -17,6 +17,7 @@ import Account from './screens/Account'
 import TicketView from './screens/TicketView'
 import MenuDrawer from './components/MenuDrawer'
 import StatusBar from './components/StatusBar'
+import SplashScreen from './components/SplashScreen'
 
 export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips' | 'account' | 'ticketView'
 
@@ -93,10 +94,10 @@ const SCREEN_DEPTH: Record<ScreenName, number> = {
 }
 
 const DEFAULT_SAVED_LINES: SavedLine[] = [
-  { id: 'sl-1', from: 'Miliken GO', to: 'Union Station GO', line: 'Stouffville', muted: false },
-  { id: 'sl-4', from: 'Mississauga City Centre', to: 'Markham Stouffville Hospital', line: 'Highway 407 Bus', muted: true },
-  { id: 'sl-2', from: 'Union Station GO', to: 'Miliken GO', line: 'Stouffville', muted: false },
+  { id: 'sl-1', from: 'Milliken GO', to: 'Union Station GO', line: 'Stouffville', muted: false },
+  { id: 'sl-2', from: 'Union Station GO', to: 'Milliken GO', line: 'Stouffville', muted: false },
   { id: 'sl-3', from: 'Union Station GO', to: 'Oshawa GO', line: 'Lakeshore East', muted: false },
+  { id: 'sl-4', from: 'Bramalea GO', to: 'Union Station GO', line: 'Kitchener', muted: true },
 ]
 
 export default function App() {
@@ -190,6 +191,8 @@ export default function App() {
       showToast, toast,
     }}>
       <div className={`phone-shell${darkMode ? ' dark' : ''}`}>
+        {/* Splash screen — shows on first mount, fades out after ~1.4s */}
+        <SplashScreen />
         {/* Status bar — fixed layer above all content */}
         <StatusBar />
 

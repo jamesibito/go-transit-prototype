@@ -28,7 +28,7 @@ function getNextDepartures() {
       departure: fmtTime(depH, depM),
       arrival: fmtTime(arrH, arrM),
       minsAway: Math.max(1, minsAway),
-      from: 'Miliken GO',
+      from: 'Milliken GO',
       to: 'Union Station GO',
       line: 'Stouffville',
     })

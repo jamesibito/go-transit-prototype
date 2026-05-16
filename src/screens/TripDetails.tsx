@@ -1,48 +1,26 @@
+import { useMemo } from 'react'
 import { useNav } from '../App'
 import { ChevronLeft, StarIcon, AlertIcon } from '../components/Icons'
 import { ROUTES, generateStopTimes, fmtTime } from '../data/trips'
-
-function TransitMap({ label1, label2 }: { label1: string; label2: string }) {
-  return (
-    <div className="w-full overflow-hidden" style={{ height: 200, background: 'var(--surface-green-soft)', position: 'relative' }}>
-      <svg width="100%" height="100%" viewBox="0 0 390 200" preserveAspectRatio="xMidYMid slice">
-        <rect width="390" height="200" fill="var(--surface-green-soft)"/>
-        {[40,80,120,160].map(y => <line key={y} x1="0" y1={y} x2="390" y2={y} stroke="var(--border-green)" strokeWidth="1"/>)}
-        {[60,120,180,240,300,360].map(x => <line key={x} x1={x} y1="0" x2={x} y2="200" stroke="var(--border-green)" strokeWidth="1"/>)}
-        <line x1="0" y1="110" x2="390" y2="110" stroke="var(--border-green)" strokeWidth="5"/>
-        <line x1="195" y1="0" x2="195" y2="200" stroke="var(--border-green)" strokeWidth="5"/>
-        <path d="M 300 15 Q 260 55 220 90 Q 180 125 120 165" stroke="#357a1e" strokeWidth="4.5" fill="none" strokeLinecap="round"/>
-        <circle cx="120" cy="165" r="7" fill="#357a1e" stroke="var(--surface-primary)" strokeWidth="2"/>
-        <circle cx="170" cy="125" r="4.5" fill="var(--surface-primary)" stroke="#357a1e" strokeWidth="2"/>
-        <circle cx="220" cy="90" r="4.5" fill="var(--surface-primary)" stroke="#357a1e" strokeWidth="2"/>
-        <circle cx="260" cy="55" r="4.5" fill="var(--surface-primary)" stroke="#357a1e" strokeWidth="2"/>
-        <circle cx="300" cy="15" r="7" fill="#357a1e" stroke="var(--surface-primary)" strokeWidth="2"/>
-        <text x="108" y="185" fontSize="10" fill="var(--text-primary)" fontFamily="sans-serif" fontWeight="bold">{label2}</text>
-        <text x="293" y="12" fontSize="10" fill="var(--text-primary)" fontFamily="sans-serif" fontWeight="bold">{label1}</text>
-        <rect x="8" y="8" width="90" height="22" rx="6" fill="#357a1e"/>
-        <text x="53" y="22" fontSize="11" fill="white" fontFamily="sans-serif" fontWeight="bold" textAnchor="middle">{label1}</text>
-      </svg>
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(transparent, var(--surface-primary))' }} />
-    </div>
-  )
-}
+import TransitMap from '../components/TransitMap'
 
 export default function TripDetails() {
   const { goBack, navigate, favorites, toggleFavorite, selectedRoute, setPurchaseType, setFareDetails, selectedDeparture } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
   // Use the departure the user actually tapped from the results list.
-  // Fall back to a synthesized "next ~10 min" departure only when the
-  // screen is reached without a chosen trip (e.g. deep-linked).
-  let departureStr: string
-  if (selectedDeparture) {
-    departureStr = selectedDeparture.departure
-  } else {
+  // Fall back to a synthesized "next ~10 min" departure only when the screen
+  // is reached without a chosen trip (e.g. deep-linked). Compute it once via
+  // useMemo so re-renders (favorite toggle, navigation) don't shuffle the
+  // time, and wrap the hour through %24 so late-night fallbacks don't render
+  // as "12:xx PM" when they spill past midnight.
+  const fallbackDeparture = useMemo(() => {
     const now = new Date()
     const depMin = now.getMinutes() + 10 + Math.floor(Math.random() * 5)
-    const depH = now.getHours() + Math.floor(depMin / 60)
+    const depH = (now.getHours() + Math.floor(depMin / 60)) % 24
     const depM = depMin % 60
-    departureStr = fmtTime(depH, depM)
-  }
+    return fmtTime(depH, depM)
+  }, [])
+  const departureStr = selectedDeparture?.departure ?? fallbackDeparture
   const stops = generateStopTimes(route, departureStr)
   const firstTime = stops[0].time
   const lastTime = stops[stops.length - 1].time
@@ -53,7 +31,7 @@ export default function TripDetails() {
     <div className="min-h-full" style={{ background: 'var(--surface-primary)', marginTop: -48 }}>
       {/* Map area — extends behind status bar */}
       <div style={{ position: 'relative', paddingTop: 48 }}>
-        <TransitMap label1={route.mapLabel1} label2={route.mapLabel2} />
+        <TransitMap route={route} />
         <button
           className="pressable absolute left-4 w-10 h-10 rounded-full flex items-center justify-center"
           style={{ top: 60, background: 'var(--surface-card)', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}

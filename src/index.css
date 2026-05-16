@@ -35,6 +35,17 @@
   --accent-green: #357a1e;
   --status-bar-bg: linear-gradient(to bottom, white 70%, rgba(255,255,255,0));
   --status-bar-color: #1a1a1a;
+  /* Procedural transit-map palette (TransitMap.tsx). */
+  --map-bg: #eef1e8;
+  --map-road: #dcdfd6;
+  --map-road-major: #c5c9bd;
+  --map-water: #b8d2dd;
+  --map-park: #cfdec1;
+  --map-route: #357a1e;
+  --map-stop-fill: #ffffff;
+  --map-pin-bg: #357a1e;
+  --map-pin-text: #ffffff;
+  --map-compass: #6b7280;
 }
 
 /* ─── Dark theme ─── */
@@ -52,6 +63,17 @@
   --accent-green: #5ba643;
   --status-bar-bg: linear-gradient(to bottom, #1a1d21 70%, rgba(26,29,33,0));
   --status-bar-color: #f0f1f3;
+  /* Procedural transit-map palette — dark variant. */
+  --map-bg: #1e2228;
+  --map-road: #2a2e35;
+  --map-road-major: #363c45;
+  --map-water: #2a4659;
+  --map-park: #2c4530;
+  --map-route: #5ba643;
+  --map-stop-fill: #1a1d21;
+  --map-pin-bg: #5ba643;
+  --map-pin-text: #0e1015;
+  --map-compass: #8b929e;
 }
 
 * {

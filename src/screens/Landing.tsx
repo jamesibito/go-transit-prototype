@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNav } from '../App'
 import { MenuHamburger, GOLogo, ArrowRight, TrainIcon, BusIcon, ClockIcon, MoreVerticalIcon, BellOffIcon, BellIcon, TrashIcon, FaresIcon, AlertIcon } from '../components/Icons'
 import MarqueeText from '../components/MarqueeText'
+import { getRouteKeyFromStations } from '../data/trips'
 
 function getNextDepartures() {
   const now = new Date()
@@ -15,7 +16,9 @@ function getNextDepartures() {
     const depH = h + Math.floor((m + i * 60) / 60)
     const depM = (m + i * 60) % 60
     if (depH >= 24) break
-    const arrH = depH + Math.floor((depM + 35) / 60)
+    // Arrival can spill past midnight — wrap through %24 so a 25h hour
+    // doesn't render as "1:xx PM" via fmtTime's `>= 12 → PM` rule.
+    const arrH = (depH + Math.floor((depM + 35) / 60)) % 24
     const arrM = (depM + 35) % 60
     const fmtTime = (hh: number, mm: number) => {
       const period = hh >= 12 ? 'PM' : 'AM'
@@ -86,9 +89,18 @@ function NextDepartureCard({ onTap }: { onTap: () => void }) {
 }
 
 function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string; to: string; line: string; muted: boolean }) {
-  const { navigate, toggleMuteLine, removeSavedLine } = useNav()
+  const { navigate, toggleMuteLine, removeSavedLine, setSelectedRoute, setShouldShowResults } = useNav()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // Jump straight into the schedule sheet on the Plan Your Trip page —
+  // tapping the sheet's header or backdrop returns the user to the editable
+  // form (no dead-end intermediate page).
+  const openSchedule = () => {
+    setSelectedRoute(getRouteKeyFromStations(from, to))
+    setShouldShowResults(true)
+    navigate('search')
+  }
 
   useEffect(() => {
     if (!menuOpen) return
@@ -109,7 +121,7 @@ function SavedLineCard({ id, from, to, line, muted }: { id: string; from: string
         className="w-full text-left rounded-2xl px-4 py-4 flex items-center gap-3"
         style={{ minHeight: 72, background: 'var(--surface-card)', border: '1px solid var(--border-color)', opacity: muted ? 0.6 : 1, transition: 'opacity 200ms ease' }}
       >
-        <button className="pressable flex items-center gap-3 flex-1 min-w-0" onClick={() => navigate('results')}>
+        <button className="pressable flex items-center gap-3 flex-1 min-w-0" onClick={openSchedule}>
           <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-green-light)' }}>
             {isBus ? <BusIcon size={20} color="#357a1e" /> : <TrainIcon size={20} color="#357a1e" />}
           </div>
@@ -245,7 +257,16 @@ function ActiveTripCard() {
 }
 
 export default function Landing() {
-  const { navigate, openMenu, savedLines } = useNav()
+  const { navigate, openMenu, savedLines, setSelectedRoute, setShouldShowResults } = useNav()
+
+  // Next Departure card hard-codes the Milliken → Union (Stouffville) route
+  // (see getNextDepartures); jump to that route and auto-open the schedule
+  // sheet on the Plan Your Trip page.
+  const openNextDepartureSchedule = () => {
+    setSelectedRoute('stouffville')
+    setShouldShowResults(true)
+    navigate('search')
+  }
 
   return (
     <div className="min-h-full" style={{ background: 'var(--surface-primary)' }}>
@@ -269,7 +290,7 @@ export default function Landing() {
 
       {/* Next Departure */}
       <div className="px-5 pt-2 pb-4">
-        <NextDepartureCard onTap={() => navigate('results')} />
+        <NextDepartureCard onTap={openNextDepartureSchedule} />
       </div>
 
       {/* New Trip CTA */}

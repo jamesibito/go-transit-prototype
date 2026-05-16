@@ -1,7 +1,6 @@
 import { useState, createContext, useContext, useCallback } from 'react'
 import Landing from './screens/Landing'
 import SearchTrip from './screens/SearchTrip'
-import SearchResults from './screens/SearchResults'
 import TripDetails from './screens/TripDetails'
 import Fares from './screens/Fares'
 import ServiceUpdates from './screens/ServiceUpdates'
@@ -19,7 +18,7 @@ import MenuDrawer from './components/MenuDrawer'
 import StatusBar from './components/StatusBar'
 import SplashScreen from './components/SplashScreen'
 
-export type ScreenName = 'landing' | 'search' | 'results' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips' | 'account' | 'ticketView'
+export type ScreenName = 'landing' | 'search' | 'tripDetails' | 'fares' | 'serviceUpdates' | 'payment' | 'ticketConfirmation' | 'about' | 'settings' | 'paymentHistory' | 'savedCards' | 'accessibility' | 'savedTrips' | 'account' | 'ticketView'
 
 export interface SavedLine {
   id: string
@@ -74,6 +73,11 @@ interface NavContextType {
   setPrestoConnected: (on: boolean) => void
   selectedRoute: string
   setSelectedRoute: (key: string) => void
+  // When true, the SearchTrip screen auto-opens its results sheet on mount
+  // and seeds the From/To fields from selectedRoute. Set by callers (Landing,
+  // Saved Trips) that want to jump straight to a schedule. Consumed once.
+  shouldShowResults: boolean
+  setShouldShowResults: (v: boolean) => void
   searchDateTime: Date | null      // user-chosen depart datetime; null = "now"
   setSearchDateTime: (d: Date | null) => void
   selectedDeparture: { departure: string; arrival: string } | null   // specific trip the user tapped from results
@@ -94,7 +98,7 @@ export const NavContext = createContext<NavContextType>({} as NavContextType)
 export const useNav = () => useContext(NavContext)
 
 const SCREEN_DEPTH: Record<ScreenName, number> = {
-  landing: 0, search: 1, results: 2, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2, savedTrips: 1, account: 2, ticketView: 1,
+  landing: 0, search: 1, tripDetails: 3, fares: 1, serviceUpdates: 1, payment: 4, ticketConfirmation: 5, about: 1, settings: 1, paymentHistory: 2, savedCards: 2, accessibility: 2, savedTrips: 1, account: 2, ticketView: 1,
 }
 
 const DEFAULT_SAVED_LINES: SavedLine[] = [
@@ -114,6 +118,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false)
   const [prestoConnected, setPrestoConnected] = useState(false)
   const [selectedRoute, setSelectedRoute] = useState('stouffville')
+  const [shouldShowResults, setShouldShowResults] = useState(false)
   const [searchDateTime, setSearchDateTime] = useState<Date | null>(null)
   const [selectedDeparture, setSelectedDeparture] = useState<{ departure: string; arrival: string } | null>(null)
   const [purchaseType, setPurchaseType] = useState<'eticket' | 'pass'>('eticket')
@@ -160,11 +165,10 @@ export default function App() {
     setSavedLines(prev => prev.filter(l => l.id !== id))
   }, [])
 
-  const screens: ScreenName[] = ['landing', 'search', 'results', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility', 'savedTrips', 'account', 'ticketView']
+  const screens: ScreenName[] = ['landing', 'search', 'tripDetails', 'fares', 'serviceUpdates', 'payment', 'ticketConfirmation', 'about', 'settings', 'paymentHistory', 'savedCards', 'accessibility', 'savedTrips', 'account', 'ticketView']
   const screenNodes: Record<ScreenName, React.ReactNode> = {
     landing: <Landing />,
     search: <SearchTrip />,
-    results: <SearchResults />,
     tripDetails: <TripDetails />,
     fares: <Fares />,
     serviceUpdates: <ServiceUpdates />,
@@ -191,6 +195,7 @@ export default function App() {
       darkMode, setDarkMode,
       prestoConnected, setPrestoConnected,
       selectedRoute, setSelectedRoute,
+      shouldShowResults, setShouldShowResults,
       searchDateTime, setSearchDateTime,
       selectedDeparture, setSelectedDeparture,
       purchaseType, setPurchaseType,

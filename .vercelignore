@@ -1,0 +1,13 @@
+# Local-only case-study capture scripts — never run on Vercel.
+capture-app-screens.mjs
+capture-bare-screens.mjs
+capture-hover-videos.mjs
+screenshot-assets.mjs
+scripts/
+
+# Captured output, not source.
+case-study-assets/
+case-study-videos/
+
+# Mac noise.
+.DS_Store

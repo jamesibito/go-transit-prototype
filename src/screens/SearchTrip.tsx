@@ -3,7 +3,8 @@ import { useNav } from '../App'
 import NavHeader from '../components/NavHeader'
 import TripCard from '../components/TripCard'
 import StationPicker from '../components/StationPicker'
-import { getRouteKeyFromStations } from '../data/trips'
+import ResultsSheet from '../components/ResultsSheet'
+import { getRouteKeyFromStations, ROUTES } from '../data/trips'
 import { SwapIcon, LocationPin, ClockIcon, ChevronDown } from '../components/Icons'
 
 const history = [
@@ -57,10 +58,25 @@ function nextHalfHour(d: Date): { h: number; m: number } {
 }
 
 export default function SearchTrip() {
-  const { navigate, setSelectedRoute, searchDateTime, setSearchDateTime } = useNav()
+  const { navigate, selectedRoute, setSelectedRoute, searchDateTime, setSearchDateTime, shouldShowResults, setShouldShowResults, setSelectedDeparture } = useNav()
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [pickerField, setPickerField] = useState<'from' | 'to' | null>(null)
+  const [showResults, setShowResults] = useState(false)
+
+  // If we arrived here via a path that wants the results sheet to auto-open
+  // (e.g. Landing's "Next Departure" card, a Saved Trip), seed the form from
+  // the chosen route and open the sheet. The flag is consumed once.
+  useEffect(() => {
+    if (!shouldShowResults) return
+    const r = ROUTES[selectedRoute]
+    if (r) {
+      setFrom(r.from)
+      setTo(r.to)
+    }
+    setShowResults(true)
+    setShouldShowResults(false)
+  }, [shouldShowResults, selectedRoute, setShouldShowResults])
 
   const dateOptions = useMemo(buildDateOptions, [])
   const timeOptions = useMemo(buildTimeOptions, [])
@@ -129,8 +145,10 @@ export default function SearchTrip() {
   const handleHistoryClick = (histFrom: string, histTo: string) => {
     const key = getRouteKeyFromStations(histFrom, histTo)
     setSelectedRoute(key)
+    setFrom(histFrom)
+    setTo(histTo)
     setSearchDateTime(null)
-    navigate('results')
+    setShowResults(true)
   }
 
   const handleSearch = () => {
@@ -145,7 +163,7 @@ export default function SearchTrip() {
       const [hh, mn] = timeValue.split(':').map(Number)
       setSearchDateTime(new Date(yyyy, mm - 1, dd, hh, mn, 0, 0))
     }
-    navigate('results')
+    setShowResults(true)
   }
 
   // Search is only valid once both endpoints are picked AND they differ
@@ -441,6 +459,21 @@ export default function SearchTrip() {
           onClose={() => setPickerField(null)}
         />
       )}
+
+      {/* Results bottom sheet — replaces the old standalone "Search Schedule"
+          page. Dismissing returns the user to the editable form below, which
+          is the right place to be when no trips match or the user wants to
+          change date/time/stations. */}
+      <ResultsSheet
+        visible={showResults}
+        routeKey={selectedRoute}
+        atDate={searchDateTime ?? new Date()}
+        onClose={() => setShowResults(false)}
+        onPickTrip={(trip) => {
+          setSelectedDeparture(trip)
+          navigate('tripDetails')
+        }}
+      />
     </div>
   )
 }

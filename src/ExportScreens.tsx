@@ -1,7 +1,6 @@
 import React from 'react'
 import Landing from './screens/Landing'
 import SearchTrip from './screens/SearchTrip'
-import SearchResults from './screens/SearchResults'
 import TripDetails from './screens/TripDetails'
 import Fares from './screens/Fares'
 import ServiceUpdates from './screens/ServiceUpdates'
@@ -53,7 +52,7 @@ function ScreenShell({ children, label, dark = false }: { children: React.ReactN
   )
 }
 
-function ScreenWithContext({ children, route = 'stouffville', dark = false }: { children: React.ReactNode; route?: string; dark?: boolean }) {
+function ScreenWithContext({ children, route = 'stouffville', dark = false, autoOpenResults = false }: { children: React.ReactNode; route?: string; dark?: boolean; autoOpenResults?: boolean }) {
   const noop = () => {}
   const navValue = {
     currentScreen: 'landing' as ScreenName,
@@ -74,6 +73,8 @@ function ScreenWithContext({ children, route = 'stouffville', dark = false }: { 
     setPrestoConnected: noop as (on: boolean) => void,
     selectedRoute: route,
     setSelectedRoute: noop as (key: string) => void,
+    shouldShowResults: autoOpenResults,
+    setShouldShowResults: noop as (v: boolean) => void,
     searchDateTime: null,
     setSearchDateTime: noop as (d: Date | null) => void,
     selectedDeparture: null,
@@ -118,8 +119,8 @@ export default function ExportScreens() {
         <ScreenShell label="Search Trip" dark={dark}><SearchTrip /></ScreenShell>
       </ScreenWithContext>
 
-      <ScreenWithContext route="stouffville" dark={dark}>
-        <ScreenShell label="Search Results" dark={dark}><SearchResults /></ScreenShell>
+      <ScreenWithContext route="stouffville" dark={dark} autoOpenResults>
+        <ScreenShell label="Search Results (sheet)" dark={dark}><SearchTrip /></ScreenShell>
       </ScreenWithContext>
 
       <ScreenWithContext route="stouffville" dark={dark}>

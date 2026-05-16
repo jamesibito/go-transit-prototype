@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNav } from '../App'
 import { ChevronLeft, TrainIcon, BusIcon, MoreVerticalIcon, BellOffIcon, BellIcon, TrashIcon, PlusIcon2 } from '../components/Icons'
+import { getRouteKeyFromStations } from '../data/trips'
 
 function SavedLineRow({ id, from, to, line, muted }: { id: string; from: string; to: string; line: string; muted: boolean }) {
-  const { navigate, toggleMuteLine, removeSavedLine, setSelectedRoute } = useNav()
+  const { navigate, toggleMuteLine, removeSavedLine, setSelectedRoute, setShouldShowResults } = useNav()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const isBus = line.toLowerCase().includes('bus')
@@ -18,15 +19,15 @@ function SavedLineRow({ id, from, to, line, muted }: { id: string; from: string;
   }, [menuOpen])
 
   const handleTap = () => {
-    // Map saved line to a route key for results
-    const f = from.toLowerCase()
-    const t = to.toLowerCase()
-    if (f.includes('oshawa') || t.includes('oshawa')) setSelectedRoute('lakeshore-east')
-    else if (f.includes('aurora') || t.includes('aurora') || f.includes('barrie') || t.includes('barrie')) setSelectedRoute('barrie')
-    else if (f.includes('burlington') || t.includes('burlington') || f.includes('oakville') || t.includes('oakville')) setSelectedRoute('lakeshore-west')
-    else if (f.includes('mississauga') || t.includes('mississauga') || f.includes('markham') || t.includes('markham') || f.includes('407') || t.includes('407')) setSelectedRoute('highway-407')
-    else setSelectedRoute('stouffville')
-    navigate('results')
+    // Use the dynamic "From|To" key — the ROUTES Proxy plans the trip on
+    // demand, so the schedule reflects the actual saved pair (direction,
+    // bus vs train, transfers) instead of collapsing to a hand-mapped
+    // approximation.
+    setSelectedRoute(getRouteKeyFromStations(from, to))
+    // Open the schedule sheet on the Plan Your Trip page so the user can
+    // immediately tweak time/stations if no trips match.
+    setShouldShowResults(true)
+    navigate('search')
   }
 
   return (

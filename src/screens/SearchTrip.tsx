@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNav } from '../App'
 import NavHeader from '../components/NavHeader'
 import TripCard from '../components/TripCard'
@@ -14,19 +14,97 @@ const history = [
   { from: 'Bramalea GO', to: 'Union Station GO', line: 'Kitchener', type: 'train' as const },
 ]
 
-const TIME_OPTIONS = ['Now', 'In 30 min', 'In 1 hour', 'In 2 hours', '9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM']
+// ── Build next 14 days for the date pill row ──────────────────────────────────
+function buildDateOptions() {
+  const out: { value: string; label: string; sublabel: string; date: Date }[] = []
+  const now = new Date()
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)
+    const value = d.toISOString().slice(0, 10) // YYYY-MM-DD
+    let label: string
+    if (i === 0) label = 'Today'
+    else if (i === 1) label = 'Tomorrow'
+    else label = d.toLocaleDateString('en-US', { weekday: 'short' })
+    const sublabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    out.push({ value, label, sublabel, date: d })
+  }
+  return out
+}
+
+// ── Build 30-minute time slots for a whole day ────────────────────────────────
+function buildTimeOptions() {
+  const out: { value: string; label: string; h: number; m: number }[] = []
+  for (let h = 0; h < 24; h++) {
+    for (const m of [0, 30]) {
+      const period = h >= 12 ? 'PM' : 'AM'
+      const h12 = h % 12 || 12
+      out.push({
+        value: `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`,
+        label: `${h12}:${m.toString().padStart(2, '0')} ${period}`,
+        h, m,
+      })
+    }
+  }
+  return out
+}
+
+// Round a Date up to the next 30-min boundary; used to highlight the "default
+// next slot" when the user hasn't picked a specific time.
+function nextHalfHour(d: Date): { h: number; m: number } {
+  const total = d.getHours() * 60 + d.getMinutes()
+  const next = Math.ceil(total / 30) * 30
+  return { h: Math.floor(next / 60) % 24, m: next % 60 }
+}
 
 export default function SearchTrip() {
-  const { navigate, setSelectedRoute } = useNav()
+  const { navigate, setSelectedRoute, searchDateTime, setSearchDateTime } = useNav()
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [pickerField, setPickerField] = useState<'from' | 'to' | null>(null)
-  const [selectedTime, setSelectedTime] = useState('Now')
-  const [showTimePicker, setShowTimePicker] = useState(false)
+
+  const dateOptions = useMemo(buildDateOptions, [])
+  const timeOptions = useMemo(buildTimeOptions, [])
+
+  // Local picker state — defaults to "now"
+  const [useNow, setUseNow] = useState(searchDateTime === null)
+  const [dateValue, setDateValue] = useState<string>(() => {
+    const d = searchDateTime ?? new Date()
+    return d.toISOString().slice(0, 10)
+  })
+  const [timeValue, setTimeValue] = useState<string>(() => {
+    const d = searchDateTime ?? new Date()
+    const { h, m } = nextHalfHour(d)
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+  })
+  const [showTimeSheet, setShowTimeSheet] = useState(false)
+  const timeListRef = useRef<HTMLDivElement>(null)
+
+  // Scroll the chosen time into view when opening the sheet
+  useEffect(() => {
+    if (!showTimeSheet) return
+    const id = setTimeout(() => {
+      const target = timeListRef.current?.querySelector(`[data-time="${timeValue}"]`)
+      if (target && timeListRef.current) {
+        const tRect = (target as HTMLElement).getBoundingClientRect()
+        const lRect = timeListRef.current.getBoundingClientRect()
+        timeListRef.current.scrollTop += tRect.top - lRect.top - lRect.height / 2 + tRect.height / 2
+      }
+    }, 50)
+    return () => clearTimeout(id)
+  }, [showTimeSheet, timeValue])
+
+  const selectedTimeLabel = useMemo(() => {
+    return timeOptions.find(t => t.value === timeValue)?.label ?? '—'
+  }, [timeValue, timeOptions])
+
+  const selectedDate = useMemo(() => {
+    return dateOptions.find(d => d.value === dateValue)
+  }, [dateValue, dateOptions])
 
   const handleHistoryClick = (histFrom: string, histTo: string) => {
     const key = getRouteKeyFromStations(histFrom, histTo)
     setSelectedRoute(key)
+    setSearchDateTime(null)
     navigate('results')
   }
 
@@ -36,6 +114,14 @@ export default function SearchTrip() {
       setSelectedRoute(key)
     } else {
       setSelectedRoute('stouffville')
+    }
+    if (useNow) {
+      setSearchDateTime(null)
+    } else {
+      // Build a Date from chosen date + time
+      const [yyyy, mm, dd] = dateValue.split('-').map(Number)
+      const [hh, mn] = timeValue.split(':').map(Number)
+      setSearchDateTime(new Date(yyyy, mm - 1, dd, hh, mn, 0, 0))
     }
     navigate('results')
   }
@@ -52,14 +138,19 @@ export default function SearchTrip() {
     setPickerField(null)
   }
 
+  // Summary label for the date+time button
+  const whenLabel = useNow ? 'Leave now' : `${selectedDate?.label ?? 'Today'} · ${selectedTimeLabel}`
+  const whenSubLabel = useNow
+    ? `next slot ${(() => { const { h, m } = nextHalfHour(new Date()); const p = h >= 12 ? 'PM' : 'AM'; const h12 = h % 12 || 12; return `${h12}:${m.toString().padStart(2, '0')} ${p}` })()}`
+    : selectedDate?.sublabel ?? ''
+
   return (
     <div className="min-h-full relative" style={{ background: 'var(--surface-primary)' }}>
-      <NavHeader title="Search Schedule" showBack />
+      <NavHeader title="Plan Your Trip" showBack />
 
       <div className="px-5">
         {/* From/To fields */}
         <div className="relative">
-          {/* From field */}
           <button
             className="pressable w-full rounded-2xl overflow-hidden mb-1 text-left"
             style={{ background: 'var(--surface-green-soft)', border: '1.5px solid var(--border-green)' }}
@@ -76,7 +167,6 @@ export default function SearchTrip() {
             </div>
           </button>
 
-          {/* Swap button */}
           <div
             className="pressable absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center"
             onClick={handleSwap}
@@ -85,7 +175,6 @@ export default function SearchTrip() {
             <SwapIcon size={18} color="white" strokeWidth={2.5} />
           </div>
 
-          {/* To field */}
           <button
             className="pressable w-full rounded-2xl overflow-hidden text-left"
             style={{ background: 'var(--surface-green-soft)', border: '1.5px solid var(--border-green)' }}
@@ -103,48 +192,84 @@ export default function SearchTrip() {
           </button>
         </div>
 
-        {/* Time picker */}
+        {/* Now / Schedule toggle */}
+        <div className="mt-4 mb-2 flex items-center gap-2 p-1 rounded-full" style={{ background: 'var(--surface-secondary)', border: '1px solid var(--border-color)' }}>
+          {[
+            { key: true, label: 'Leave now' },
+            { key: false, label: 'Schedule' },
+          ].map(opt => (
+            <button
+              key={String(opt.key)}
+              className="pressable flex-1 py-2 rounded-full text-center"
+              style={{
+                background: useNow === opt.key ? '#357a1e' : 'transparent',
+                color: useNow === opt.key ? '#ffffff' : 'var(--text-secondary)',
+                fontSize: 13, fontWeight: 700, fontFamily: 'inherit',
+                transition: 'background 200ms ease, color 200ms ease',
+              }}
+              onClick={() => setUseNow(opt.key)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Date pill row (only when scheduling) */}
+        {!useNow && (
+          <div className="mt-2 -mx-5 px-5">
+            <div className="flex gap-2 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+              {dateOptions.map(d => {
+                const active = dateValue === d.value
+                return (
+                  <button
+                    key={d.value}
+                    className="pressable shrink-0 px-3.5 py-2 rounded-xl text-center"
+                    style={{
+                      background: active ? '#357a1e' : 'var(--surface-card)',
+                      border: `1px solid ${active ? '#357a1e' : 'var(--border-color)'}`,
+                      minWidth: 70,
+                    }}
+                    onClick={() => setDateValue(d.value)}
+                  >
+                    <p style={{
+                      fontSize: 13, fontWeight: 800, fontFamily: 'inherit',
+                      color: active ? '#ffffff' : 'var(--text-primary)',
+                      lineHeight: 1.2,
+                    }}>{d.label}</p>
+                    <p style={{
+                      fontSize: 11, fontFamily: 'inherit', marginTop: 1,
+                      color: active ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)',
+                    }}>{d.sublabel}</p>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* When summary button */}
         <button
-          className="pressable w-full mt-3 px-4 py-3 rounded-2xl flex items-center gap-3 text-left"
+          className="pressable w-full mt-2 px-4 py-3 rounded-2xl flex items-center gap-3 text-left"
           style={{ background: 'var(--surface-card)', border: '1px solid var(--border-color)' }}
-          onClick={() => setShowTimePicker(!showTimePicker)}
+          onClick={() => { if (!useNow) setShowTimeSheet(true) }}
+          disabled={useNow}
         >
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--surface-green-light)' }}>
             <ClockIcon size={17} color="#357a1e" strokeWidth={2} />
           </div>
           <div className="flex-1">
-            <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Depart</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit', marginTop: 1 }}>{selectedTime}</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Depart at
+            </p>
+            <p style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', marginTop: 1, letterSpacing: '-0.2px' }}>
+              {whenLabel}
+            </p>
+            {whenSubLabel && (
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 1 }}>{whenSubLabel}</p>
+            )}
           </div>
-          <ChevronDown size={18} color="var(--text-muted)" style={{ transform: showTimePicker ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 200ms ease' }} />
+          {!useNow && <ChevronDown size={18} color="var(--text-muted)" />}
         </button>
-
-        {/* Time options dropdown */}
-        {showTimePicker && (
-          <div className="mt-1 rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border-color)', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
-            {TIME_OPTIONS.map(time => (
-              <button
-                key={time}
-                className="pressable w-full px-4 py-3 text-left flex items-center justify-between"
-                style={{
-                  background: time === selectedTime ? 'var(--surface-green-soft)' : 'var(--surface-primary)',
-                  borderBottom: '1px solid var(--border-color)',
-                  fontSize: 14, fontWeight: time === selectedTime ? 700 : 600,
-                  color: time === selectedTime ? '#357a1e' : 'var(--text-primary)',
-                  fontFamily: 'inherit',
-                }}
-                onClick={() => { setSelectedTime(time); setShowTimePicker(false) }}
-              >
-                {time}
-                {time === selectedTime && (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#357a1e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
 
         <button
           className="pressable w-full mt-4 py-4 rounded-2xl text-white font-bold text-lg"
@@ -157,7 +282,7 @@ export default function SearchTrip() {
 
       <div className="px-5 pt-6">
         <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', marginBottom: 12, letterSpacing: '-0.3px' }}>
-          History
+          Recent trips
         </h2>
         <div className="flex flex-col gap-2.5">
           {history.map((trip, i) => (
@@ -170,6 +295,66 @@ export default function SearchTrip() {
         </div>
       </div>
       <div className="h-8" />
+
+      {/* ── Time picker bottom sheet ─────────────────────────────────────── */}
+      {showTimeSheet && (
+        <div
+          className="absolute inset-0 z-30 flex flex-col justify-end"
+          style={{ background: 'rgba(0,0,0,0.4)' }}
+          onClick={() => setShowTimeSheet(false)}
+        >
+          <div
+            className="rounded-t-3xl flex flex-col"
+            style={{ background: 'var(--surface-primary)', maxHeight: '70%', animation: 'sheet-up 0.25s cubic-bezier(0.22, 1, 0.36, 1)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="pt-3 pb-1 flex justify-center">
+              <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--border-color)' }} />
+            </div>
+            <div className="flex items-center justify-between px-5 pt-2 pb-3" style={{ borderBottom: '1px solid var(--border-color)' }}>
+              <p style={{ fontSize: 17, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit', letterSpacing: '-0.3px' }}>
+                Depart at
+              </p>
+              <button
+                className="pressable px-3 py-1.5 rounded-full"
+                style={{ background: '#357a1e', fontSize: 13, fontWeight: 700, color: 'white', fontFamily: 'inherit' }}
+                onClick={() => setShowTimeSheet(false)}
+              >
+                Done
+              </button>
+            </div>
+            <div ref={timeListRef} className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+              {timeOptions.map(t => {
+                const active = t.value === timeValue
+                return (
+                  <button
+                    key={t.value}
+                    data-time={t.value}
+                    className="pressable w-full px-5 py-3 text-left flex items-center justify-between"
+                    style={{
+                      background: active ? 'var(--surface-green-soft)' : 'transparent',
+                      borderBottom: '1px solid var(--border-color)',
+                    }}
+                    onClick={() => setTimeValue(t.value)}
+                  >
+                    <span style={{
+                      fontSize: 15, fontWeight: active ? 800 : 600,
+                      color: active ? '#357a1e' : 'var(--text-primary)',
+                      fontFamily: 'inherit',
+                    }}>{t.label}</span>
+                    {active && (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#357a1e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <style>{`@keyframes sheet-up { from { transform: translateY(20%); opacity: 0 } to { transform: translateY(0); opacity: 1 } }`}</style>
+        </div>
+      )}
 
       {/* Station Picker overlay */}
       {pickerField && (

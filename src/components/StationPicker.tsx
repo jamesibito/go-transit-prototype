@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react'
-import { ChevronLeft, TrainIcon } from './Icons'
+import { ChevronLeft, TrainIcon, BusIcon } from './Icons'
 import { STATIONS as NETWORK_STATIONS } from '../data/trips'
 
-// Flat list of every GO Transit rail station across all 7 lines, sourced
-// from the network model in data/trips.ts. Union is shared across all lines.
+// Flat list of every GO Transit station (train + bus) sourced from the
+// network model in data/trips.ts. `type` controls the icon shown.
 const STATIONS = NETWORK_STATIONS.map(s => ({
   name: s.name,
   line: s.lineLabel,
-  type: 'train' as const,
+  type: s.type,
 }))
 
 interface StationPickerProps {
@@ -95,7 +95,9 @@ export default function StationPicker({ label, onSelect, onClose }: StationPicke
                 onClick={() => onSelect(station.name)}
               >
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--surface-green-light)' }}>
-                  <TrainIcon size={17} color="#357a1e" />
+                  {station.type === 'bus'
+                    ? <BusIcon size={17} color="#357a1e" />
+                    : <TrainIcon size={17} color="#357a1e" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="truncate" style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'inherit' }}>{station.name}</p>

@@ -19,9 +19,9 @@ function SkeletonCard() {
 }
 
 export default function SearchResults() {
-  const { goBack, navigate, selectedRoute } = useNav()
+  const { goBack, navigate, selectedRoute, searchDateTime } = useNav()
   const route = ROUTES[selectedRoute] || ROUTES.stouffville
-  const upcoming = generateDepartures(route, 5)
+  const upcoming = generateDepartures(route, 5, searchDateTime ?? new Date())
   const [sheetVisible, setSheetVisible] = useState(true)
   const [loading, setLoading] = useState(true)
 

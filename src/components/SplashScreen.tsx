@@ -44,31 +44,17 @@ export default function SplashScreen() {
           animation: 'splash-pulse 1.6s ease-in-out infinite',
         }}
       />
-      {/* Logo + caption stack */}
+      {/* Centered GO logo */}
       <div
         style={{
           position: 'relative',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          gap: 14,
+          justifyContent: 'center',
           animation: 'splash-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
         }}
       >
-        <GOLogo size={72} color="#ffffff" />
-        <p
-          style={{
-            margin: 0,
-            color: 'rgba(255,255,255,0.78)',
-            fontSize: 13,
-            fontWeight: 600,
-            letterSpacing: '1.6px',
-            textTransform: 'uppercase',
-            fontFamily: 'inherit',
-          }}
-        >
-          GO Transit
-        </p>
+        <GOLogo size={92} color="#ffffff" />
       </div>
 
       <style>{`

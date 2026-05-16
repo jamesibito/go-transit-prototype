@@ -74,6 +74,8 @@ interface NavContextType {
   setPrestoConnected: (on: boolean) => void
   selectedRoute: string
   setSelectedRoute: (key: string) => void
+  searchDateTime: Date | null      // user-chosen depart datetime; null = "now"
+  setSearchDateTime: (d: Date | null) => void
   purchaseType: 'eticket' | 'pass'
   setPurchaseType: (type: 'eticket' | 'pass') => void
   fareDetails: FareDetails
@@ -109,6 +111,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false)
   const [prestoConnected, setPrestoConnected] = useState(false)
   const [selectedRoute, setSelectedRoute] = useState('stouffville')
+  const [searchDateTime, setSearchDateTime] = useState<Date | null>(null)
   const [purchaseType, setPurchaseType] = useState<'eticket' | 'pass'>('eticket')
   const [fareDetails, setFareDetails] = useState<FareDetails>({ adults: 1, seniors: 0, youth: 0, children: 0, returnTrip: false, totalPrice: 0, passengerLabel: '1 Adult' })
   const [prestoBalance, setPrestoBalance] = useState(42.50)
@@ -184,6 +187,7 @@ export default function App() {
       darkMode, setDarkMode,
       prestoConnected, setPrestoConnected,
       selectedRoute, setSelectedRoute,
+      searchDateTime, setSearchDateTime,
       purchaseType, setPurchaseType,
       fareDetails, setFareDetails,
       prestoBalance, setPrestoBalance,

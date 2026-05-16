@@ -61,9 +61,10 @@ export interface RouteConfig {
 
 export interface LineDef {
   key: string
-  name: string                 // "Lakeshore West"
-  short: string                // "LW"
+  name: string                 // "Lakeshore West" or "Route 12 — Niagara / Toronto"
+  short: string                // "LW" or "12"
   color: string
+  type: 'train' | 'bus'        // mode of transit
   stations: string[]           // ordered, both directions valid
   segmentMin: number[]         // length = stations.length - 1
   // Peak intervals (in minutes) — used for departure simulation
@@ -79,6 +80,7 @@ export const LINES: Record<string, LineDef> = {
     name: 'Lakeshore West',
     short: 'LW',
     color: GO_GREEN,
+    type: 'train',
     stations: [
       'Union Station GO',
       'Exhibition GO',
@@ -103,6 +105,7 @@ export const LINES: Record<string, LineDef> = {
     name: 'Lakeshore East',
     short: 'LE',
     color: GO_GREEN,
+    type: 'train',
     stations: [
       'Union Station GO',
       'Danforth GO',
@@ -124,6 +127,7 @@ export const LINES: Record<string, LineDef> = {
     name: 'Milton',
     short: 'MI',
     color: GO_GREEN,
+    type: 'train',
     stations: [
       'Union Station GO',
       'Kipling GO',
@@ -144,6 +148,7 @@ export const LINES: Record<string, LineDef> = {
     name: 'Kitchener',
     short: 'KI',
     color: GO_GREEN,
+    type: 'train',
     stations: [
       'Union Station GO',
       'Bloor GO',
@@ -167,6 +172,7 @@ export const LINES: Record<string, LineDef> = {
     name: 'Barrie',
     short: 'BA',
     color: GO_GREEN,
+    type: 'train',
     stations: [
       'Union Station GO',
       'Downsview Park GO',
@@ -189,6 +195,7 @@ export const LINES: Record<string, LineDef> = {
     name: 'Stouffville',
     short: 'ST',
     color: GO_GREEN,
+    type: 'train',
     stations: [
       'Union Station GO',
       'Kennedy GO',
@@ -210,6 +217,7 @@ export const LINES: Record<string, LineDef> = {
     name: 'Richmond Hill',
     short: 'RH',
     color: GO_GREEN,
+    type: 'train',
     stations: [
       'Union Station GO',
       'Oriole GO',
@@ -223,6 +231,158 @@ export const LINES: Record<string, LineDef> = {
     peakIntervalMin: 30,
     offPeakIntervalMin: 90,
   },
+
+  // ── GO Bus routes ─────────────────────────────────────────────────────────
+  // Real-world GO Transit bus routes that shadow train corridors and connect
+  // points the rail network can't reach (Niagara, McMaster, York University,
+  // Pearson Airport, Mississauga local). Station names that match train
+  // stations resolve to the same node, enabling natural bus↔train transfers.
+
+  'route-12': {
+    key: 'route-12',
+    name: 'Route 12 — Niagara / Toronto',
+    short: '12',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'Niagara Falls Bus Terminal',
+      'St. Catharines Bus Terminal',
+      'Burlington GO',
+      'Aldershot GO',
+      'Hamilton GO Centre',
+      'Union Station GO',
+    ],
+    segmentMin: [26, 30, 12, 10, 58],
+    peakIntervalMin: 60,
+    offPeakIntervalMin: 120,
+  },
+
+  'route-16': {
+    key: 'route-16',
+    name: 'Route 16 — Hamilton / Toronto (QEW)',
+    short: '16',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'McMaster University',
+      'Hamilton GO Centre',
+      'Aldershot GO',
+      'Burlington GO',
+      'Bronte GO',
+      'Oakville GO',
+      'Union Station GO',
+    ],
+    segmentMin: [14, 8, 10, 8, 6, 45],
+    peakIntervalMin: 30,
+    offPeakIntervalMin: 60,
+  },
+
+  'route-21': {
+    key: 'route-21',
+    name: 'Route 21 — Milton / Square One',
+    short: '21',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'Milton GO',
+      'Lisgar GO',
+      'Meadowvale GO',
+      'Streetsville GO',
+      'Cooksville GO',
+      'Square One Bus Terminal',
+    ],
+    segmentMin: [9, 7, 6, 7, 11],
+    peakIntervalMin: 30,
+    offPeakIntervalMin: 60,
+  },
+
+  'route-25': {
+    key: 'route-25',
+    name: 'Route 25 — Waterloo / Square One (407)',
+    short: '25',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'University of Waterloo',
+      'Guelph Central GO',
+      '407 / Mississauga Park & Ride',
+      'Square One Bus Terminal',
+    ],
+    segmentMin: [22, 28, 14],
+    peakIntervalMin: 60,
+    offPeakIntervalMin: 120,
+  },
+
+  'route-27': {
+    key: 'route-27',
+    name: 'Route 27 — Brampton / York U / Vaughan',
+    short: '27',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'Brampton GO',
+      '407 / Bramalea Park & Ride',
+      'York University',
+      'Vaughan Metropolitan Centre',
+    ],
+    segmentMin: [13, 17, 9],
+    peakIntervalMin: 30,
+    offPeakIntervalMin: 60,
+  },
+
+  'route-34': {
+    key: 'route-34',
+    name: 'Route 34 — Newmarket / Pearson Airport',
+    short: '34',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'Newmarket GO',
+      'Aurora GO',
+      '407 / Yonge Park & Ride',
+      'Pearson Airport Terminal 1',
+    ],
+    segmentMin: [9, 22, 32],
+    peakIntervalMin: 30,
+    offPeakIntervalMin: 60,
+  },
+
+  'route-40': {
+    key: 'route-40',
+    name: 'Route 40 — Hamilton / Richmond Hill (407)',
+    short: '40',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'Hamilton GO Centre',
+      'Aldershot GO',
+      'Burlington GO',
+      'Oakville GO',
+      'Square One Bus Terminal',
+      'York University',
+      'Richmond Hill GO',
+    ],
+    segmentMin: [11, 9, 13, 25, 22, 24],
+    peakIntervalMin: 30,
+    offPeakIntervalMin: 60,
+  },
+
+  'route-88': {
+    key: 'route-88',
+    name: 'Route 88 — Burlington / Square One',
+    short: '88',
+    color: GO_GREEN,
+    type: 'bus',
+    stations: [
+      'Burlington GO',
+      'Oakville GO',
+      'Clarkson GO',
+      'Square One Bus Terminal',
+    ],
+    segmentMin: [13, 11, 22],
+    peakIntervalMin: 60,
+    offPeakIntervalMin: 90,
+  },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -234,6 +394,7 @@ export interface StationInfo {
   name: string
   lines: string[]              // line keys
   lineLabel: string            // human-readable line summary
+  type: 'train' | 'bus' | 'mixed'   // mode(s) of transit serving this stop
 }
 
 function buildStationIndex(): { stations: StationInfo[]; lineOf: Map<string, string[]> } {
@@ -245,14 +406,25 @@ function buildStationIndex(): { stations: StationInfo[]; lineOf: Map<string, str
     }
   }
   const stations: StationInfo[] = Array.from(lineOf.entries())
-    .map(([name, lineKeys]) => ({
-      name,
-      lines: lineKeys,
-      lineLabel:
+    .map(([name, lineKeys]) => {
+      const hasTrain = lineKeys.some(k => LINES[k].type === 'train')
+      const hasBus = lineKeys.some(k => LINES[k].type === 'bus')
+      const type: 'train' | 'bus' | 'mixed' =
+        hasTrain && hasBus ? 'mixed' : hasTrain ? 'train' : 'bus'
+      // Shorten labels: prefer line short-names for bus, full names for train
+      const labelParts = lineKeys.map(k => {
+        const L = LINES[k]
+        return L.type === 'bus' ? `Bus ${L.short}` : L.name
+      })
+      const uniqueLabels = Array.from(new Set(labelParts))
+      const lineLabel =
         name === 'Union Station GO'
           ? 'All Lines'
-          : lineKeys.map(k => LINES[k].name).join(' / '),
-    }))
+          : uniqueLabels.length > 3
+            ? `${uniqueLabels.slice(0, 2).join(' / ')} +${uniqueLabels.length - 2} more`
+            : uniqueLabels.join(' / ')
+      return { name, lines: lineKeys, lineLabel, type }
+    })
     .sort((a, b) => a.name.localeCompare(b.name))
   return { stations, lineOf }
 }
@@ -410,7 +582,85 @@ const $ = (n: number) => `$${n.toFixed(2)}`
 //              detail screen and search results agree.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const TRANSFER_AT_UNION_MIN = 10
+const DEFAULT_TRANSFER_MIN = 10
+
+// Find the optimal single-transfer trip between two stations on different
+// lines. Tries every (lineA, transferStation, lineB) combination where
+// transferStation is on both lines, and returns the one with the shortest
+// total travel time. Returns null if no single-transfer path exists.
+function findBestTransfer(
+  from: string,
+  to: string
+): { lineA: string; lineB: string; transferAt: string; total: number } | null {
+  const fromInfo = findStation(from)
+  const toInfo = findStation(to)
+  if (!fromInfo || !toInfo) return null
+
+  let best: { lineA: string; lineB: string; transferAt: string; total: number } | null = null
+
+  for (const la of fromInfo.lines) {
+    const stationsA = new Set(LINES[la].stations)
+    for (const lb of toInfo.lines) {
+      if (la === lb) continue
+      for (const candidate of LINES[lb].stations) {
+        if (!stationsA.has(candidate)) continue
+        if (candidate === from || candidate === to) continue
+        const seg1 = segmentMinutes(la, from, candidate)
+        const seg2 = segmentMinutes(lb, candidate, to)
+        if (!seg1 || !seg2) continue
+        const total = seg1.minutes + DEFAULT_TRANSFER_MIN + seg2.minutes
+        if (!best || total < best.total) {
+          best = { lineA: la, lineB: lb, transferAt: candidate, total }
+        }
+      }
+    }
+  }
+  return best
+}
+
+// Find the optimal TWO-transfer trip when no 1-transfer path exists.
+// Tries every (lineA, transferStation1, lineB, transferStation2, lineC) combo.
+// O(L³·S²) worst-case; in practice small enough for the GO network.
+function findBestTwoTransfer(
+  from: string,
+  to: string
+): { lineA: string; lineB: string; lineC: string; t1: string; t2: string; total: number } | null {
+  const fromInfo = findStation(from)
+  const toInfo = findStation(to)
+  if (!fromInfo || !toInfo) return null
+
+  let best: { lineA: string; lineB: string; lineC: string; t1: string; t2: string; total: number } | null = null
+
+  for (const la of fromInfo.lines) {
+    const sA = new Set(LINES[la].stations)
+    for (const lc of toInfo.lines) {
+      if (la === lc) continue
+      const sC = new Set(LINES[lc].stations)
+      for (const lb of Object.keys(LINES)) {
+        if (lb === la || lb === lc) continue
+        const sB = LINES[lb].stations
+        const t1s = sB.filter(s => sA.has(s) && s !== from)
+        const t2s = sB.filter(s => sC.has(s) && s !== to)
+        for (const t1 of t1s) {
+          for (const t2 of t2s) {
+            if (t1 === t2) continue   // would be a 1-transfer (already tried)
+            const seg1 = segmentMinutes(la, from, t1)
+            const seg2 = segmentMinutes(lb, t1, t2)
+            const seg3 = segmentMinutes(lc, t2, to)
+            if (!seg1 || !seg2 || !seg3) continue
+            const total =
+              seg1.minutes + DEFAULT_TRANSFER_MIN + seg2.minutes +
+              DEFAULT_TRANSFER_MIN + seg3.minutes
+            if (!best || total < best.total) {
+              best = { lineA: la, lineB: lb, lineC: lc, t1, t2, total }
+            }
+          }
+        }
+      }
+    }
+  }
+  return best
+}
 
 function shortLabel(name: string): string {
   return name
@@ -484,34 +734,116 @@ export function planTrip(fromName: string, toName: string): PlannedTrip {
     }
   }
 
-  // Cross-line via Union
-  const lineA = a.lines.find(l => LINES[l].stations.includes(from))!
-  const lineB = b.lines.find(l => LINES[l].stations.includes(to))!
+  // Cross-line — find the best single-transfer path through any shared station.
+  // (Generalized from "Union only": now any station on both lines can act as
+  // the transfer point, enabling bus↔train and bus↔bus transfers at terminals
+  // like Square One, Pearson, or anywhere a route meets a train line.)
+  const best = findBestTransfer(from, to)
+  if (best) {
+    const { lineA, lineB, transferAt } = best
+    const leg1 = directLeg(lineA, from, transferAt, 0)
+    const transferOffset = leg1.duration
+    const leg2Start = transferOffset + DEFAULT_TRANSFER_MIN
+    const leg2 = directLeg(lineB, transferAt, to, leg2Start)
+
+    const combined: { name: string; offset: number; major: boolean }[] = []
+    for (const s of leg1.stops) {
+      if (s.name === transferAt) continue
+      combined.push(s)
+    }
+    combined.push({ name: transferAt, offset: transferOffset, major: true })
+    for (let i = 1; i < leg2.stops.length; i++) combined.push(leg2.stops[i])
+
+    const shortFor = (k: string) =>
+      LINES[k].type === 'bus' ? `Bus ${LINES[k].short}` : `${LINES[k].name} Line`
+    return {
+      routeKey: `${from}|${to}`,
+      fromName: from,
+      toName: to,
+      lineLabel: `${shortFor(lineA)} → ${shortFor(lineB)} (via ${shortLabel(transferAt)})`,
+      durationMin: leg1.duration + DEFAULT_TRANSFER_MIN + leg2.duration,
+      fare: fareFor(from, to),
+      transfer: { at: transferAt, waitMin: DEFAULT_TRANSFER_MIN },
+      stopOffsets: combined,
+    }
+  }
+
+  // No single-transfer path — try a 2-transfer trip (e.g. Square One →
+  // Cooksville → Union → Oshawa, or York U → Brampton → Union → Markham).
+  const best2 = findBestTwoTransfer(from, to)
+  if (best2) {
+    const { lineA, lineB, lineC, t1, t2 } = best2
+    const leg1 = directLeg(lineA, from, t1, 0)
+    const t1Offset = leg1.duration
+    const leg2Start = t1Offset + DEFAULT_TRANSFER_MIN
+    const leg2 = directLeg(lineB, t1, t2, leg2Start)
+    const t2Offset = leg2Start + leg2.duration
+    const leg3Start = t2Offset + DEFAULT_TRANSFER_MIN
+    const leg3 = directLeg(lineC, t2, to, leg3Start)
+
+    const combined: { name: string; offset: number; major: boolean }[] = []
+    for (const s of leg1.stops) {
+      if (s.name === t1) continue
+      combined.push(s)
+    }
+    combined.push({ name: t1, offset: t1Offset, major: true })
+    for (let i = 1; i < leg2.stops.length; i++) {
+      if (leg2.stops[i].name === t2) continue
+      combined.push(leg2.stops[i])
+    }
+    combined.push({ name: t2, offset: t2Offset, major: true })
+    for (let i = 1; i < leg3.stops.length; i++) combined.push(leg3.stops[i])
+
+    const shortFor = (k: string) =>
+      LINES[k].type === 'bus' ? `Bus ${LINES[k].short}` : `${LINES[k].name}`
+    return {
+      routeKey: `${from}|${to}`,
+      fromName: from,
+      toName: to,
+      lineLabel: `${shortFor(lineA)} → ${shortFor(lineB)} → ${shortFor(lineC)}`,
+      durationMin: leg1.duration + DEFAULT_TRANSFER_MIN + leg2.duration + DEFAULT_TRANSFER_MIN + leg3.duration,
+      fare: fareFor(from, to),
+      transfer: { at: `${shortLabel(t1)} → ${shortLabel(t2)}`, waitMin: DEFAULT_TRANSFER_MIN * 2 },
+      stopOffsets: combined,
+    }
+  }
+
+  // Final fallback: Union-via if both touch Union; otherwise return a stub.
+  const lineA = a.lines.find(l => LINES[l].stations.includes(HUB)) || a.lines[0]
+  const lineB = b.lines.find(l => LINES[l].stations.includes(HUB)) || b.lines[0]
+  if (!lineA || !lineB || !LINES[lineA].stations.includes(HUB) || !LINES[lineB].stations.includes(HUB)) {
+    return {
+      routeKey: `${from}|${to}`,
+      fromName: from,
+      toName: to,
+      lineLabel: 'No direct service',
+      durationMin: 0,
+      fare: fareFor(from, to),
+      stopOffsets: [
+        { name: from, offset: 0, major: true },
+        { name: to, offset: 0, major: true },
+      ],
+    }
+  }
   const leg1 = directLeg(lineA, from, HUB, 0)
   const transferOffset = leg1.duration
-  const leg2Start = transferOffset + TRANSFER_AT_UNION_MIN
+  const leg2Start = transferOffset + DEFAULT_TRANSFER_MIN
   const leg2 = directLeg(lineB, HUB, to, leg2Start)
-
-  // Combine stops, but only show Union once — leg1 ends at Union, leg2 starts there.
-  // Replace leg2's first stop (Union duplicate) with our transfer-extended Union.
   const combined: { name: string; offset: number; major: boolean }[] = []
   for (const s of leg1.stops) {
-    if (s.name === HUB) continue   // we'll add the merged Union marker
+    if (s.name === HUB) continue
     combined.push(s)
   }
-  // Single Union node showing arrival → departure window
   combined.push({ name: HUB, offset: transferOffset, major: true })
-  // Skip leg2's Union (already added)
   for (let i = 1; i < leg2.stops.length; i++) combined.push(leg2.stops[i])
-
   return {
     routeKey: `${from}|${to}`,
     fromName: from,
     toName: to,
     lineLabel: `${LINES[lineA].name} → ${LINES[lineB].name} (via Union)`,
-    durationMin: leg1.duration + TRANSFER_AT_UNION_MIN + leg2.duration,
+    durationMin: leg1.duration + DEFAULT_TRANSFER_MIN + leg2.duration,
     fare: fareFor(from, to),
-    transfer: { at: HUB, waitMin: TRANSFER_AT_UNION_MIN },
+    transfer: { at: HUB, waitMin: DEFAULT_TRANSFER_MIN },
     stopOffsets: combined,
   }
 }
@@ -649,6 +981,12 @@ function decodeRouteKey(key: string): RouteConfig {
   else if (key === 'milton') { from = HUB; to = 'Milton GO' }
   else if (key === 'kitchener') { from = HUB; to = 'Kitchener GO' }
   else if (key === 'richmond-hill') { from = HUB; to = 'Richmond Hill GO' }
+  else if (LINES[key]) {
+    // Bus or train line key: use the line's first and last stations
+    const stations = LINES[key].stations
+    from = stations[0]
+    to = stations[stations.length - 1]
+  }
   const trip = planTrip(from, to)
   const deps = planDepartures(trip, new Date(), 1)
   const dep: Departure = deps[0] || {
@@ -706,10 +1044,10 @@ export function getRouteKeyFromStations(from: string, to: string): string {
   return `${f}|${t}`
 }
 
-export function generateDepartures(route: RouteConfig, count = 5) {
+export function generateDepartures(route: RouteConfig, count = 5, at: Date = new Date()) {
   // Reconstruct a PlannedTrip from the RouteConfig to compute fresh times.
   const trip = planTrip(route.from, route.to)
-  return planDepartures(trip, new Date(), count)
+  return planDepartures(trip, at, count)
 }
 
 export function generateStopTimes(route: RouteConfig, departureTime: string): TripStop[] {

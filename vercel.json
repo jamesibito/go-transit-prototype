@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "build": {
+    "env": {
+      "PUPPETEER_SKIP_DOWNLOAD": "true"
+    }
+  },
+  "installCommand": "PUPPETEER_SKIP_DOWNLOAD=true npm install"
+}

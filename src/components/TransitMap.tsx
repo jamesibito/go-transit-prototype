@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import type { RouteConfig } from '../data/trips'
 import { TrainIcon, BusIcon } from './Icons'
 
@@ -43,13 +43,13 @@ const VB_H = 200
 
 // ── Procedural background pieces ──────────────────────────────────────────────
 
-function streetGrid(rand: () => number): JSX.Element[] {
+function streetGrid(rand: () => number): ReactNode[] {
   // A hairline grid offset and rotated slightly — gives each route its own
   // "neighborhood" without the obvious crosshair look of the old map.
   const angle = (rand() - 0.5) * 14 // -7° to +7°
   const ox = rand() * 30
   const oy = rand() * 30
-  const lines: JSX.Element[] = []
+  const lines: ReactNode[] = []
   for (let i = -2; i < 12; i++) {
     const x = ox + i * 38
     lines.push(<line key={`v${i}`} x1={x} y1={-40} x2={x} y2={VB_H + 40} stroke="var(--map-road)" strokeWidth="1" />)
@@ -61,7 +61,7 @@ function streetGrid(rand: () => number): JSX.Element[] {
   return [<g key="grid" transform={`rotate(${angle.toFixed(2)} ${VB_W / 2} ${VB_H / 2})`}>{lines}</g>]
 }
 
-function arterials(rand: () => number): JSX.Element {
+function arterials(rand: () => number): ReactNode {
   // Two slightly thicker arterials — placed at hashed offsets so trips don't
   // all share the same road skeleton.
   const ay = 60 + Math.floor(rand() * 80)
@@ -74,7 +74,7 @@ function arterials(rand: () => number): JSX.Element {
   )
 }
 
-function river(rand: () => number): JSX.Element {
+function river(rand: () => number): ReactNode {
   // A soft, wide stroke shaped like a stylized waterway. Control points are
   // hashed so the river never lands on top of the route spine the same way
   // twice.
@@ -94,7 +94,7 @@ function river(rand: () => number): JSX.Element {
   )
 }
 
-function park(rand: () => number, key: string): JSX.Element {
+function park(rand: () => number, key: string): ReactNode {
   const x = 40 + rand() * 220
   const y = 30 + rand() * 100
   const w = 60 + rand() * 60

@@ -103,7 +103,10 @@ export default function ResultsSheet({ visible, routeKey, atDate, onClose, onPic
         onClick={onClose}
       />
 
-      {/* Sheet */}
+      {/* Sheet — fixed height (not max-height) so the sheet always opens to
+          the same size whether it's a full trip list or just an empty state.
+          Without this, an empty result collapses the sheet to ~120px of
+          header and the body sits below the fold on small viewports. */}
       <div
         className="absolute left-0 right-0 bottom-0"
         style={{
@@ -112,7 +115,7 @@ export default function ResultsSheet({ visible, routeKey, atDate, onClose, onPic
           boxShadow: '0 -8px 32px rgba(0,0,0,0.12)',
           transform: visible ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 380ms cubic-bezier(0.32,0.72,0,1)',
-          maxHeight: '78%',
+          height: '78%',
           zIndex: 41,
           display: 'flex', flexDirection: 'column',
         }}
@@ -149,7 +152,16 @@ export default function ResultsSheet({ visible, routeKey, atDate, onClose, onPic
         </button>
 
         {/* Body */}
-        <div className="overflow-y-auto px-5 pt-4 pb-6" style={{ flex: 1 }}>
+        <div
+          className="overflow-y-auto px-5 pt-4 pb-6"
+          style={{
+            flex: 1,
+            // Center the empty state vertically; lists / skeletons start at top.
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: (!loading && upcoming.length === 0) ? 'center' : 'flex-start',
+          }}
+        >
           {loading ? (
             <div className="flex flex-col gap-2.5">
               <SkeletonCard />

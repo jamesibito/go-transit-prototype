@@ -33,6 +33,9 @@
   --border-color: #e2e4e7;
   --border-green: #d5e6cc;
   --accent-green: #357a1e;
+  --accent-error: #c1272d;
+  --border-error: #e9a4a7;
+  --surface-error-soft: #fdf2f3;
   --status-bar-bg: linear-gradient(to bottom, white 70%, rgba(255,255,255,0));
   --status-bar-color: #1a1a1a;
   /* Procedural transit-map palette (TransitMap.tsx). */
@@ -61,6 +64,9 @@
   --border-color: #2d3239;
   --border-green: #2a4020;
   --accent-green: #5ba643;
+  --accent-error: #ff6b70;
+  --border-error: #6b2a2d;
+  --surface-error-soft: #2a1517;
   --status-bar-bg: linear-gradient(to bottom, #1a1d21 70%, rgba(26,29,33,0));
   --status-bar-color: #f0f1f3;
   /* Procedural transit-map palette — dark variant. */
@@ -212,6 +218,21 @@ p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0; }
 }
 .shimmer {
   animation: shimmer 1.2s ease-in-out infinite;
+}
+
+/* Field validation shake — applied on the From/To pickers when the user
+   taps "See Schedule" with an empty value. The animation is keyed so it
+   re-fires on each tap. Pairs with a brief red border / error caption. */
+@keyframes field-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+.field-shake {
+  animation: field-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 }
 
 /* Marquee / ticker for truncated text */

@@ -38,11 +38,22 @@ export default function TripCard({ from, to, line, departure, arrival, type = 't
         <div className="truncate" style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'inherit' }}>
           {departure && arrival ? `${departure} – ${arrival}` : `${from} → ${to}`}
         </div>
-        <div className="mt-0.5 truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>
-          {departure ? `${from} → ${to}` : line}
-        </div>
-        {departure && (
-          <div className="mt-0.5" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>{line}</div>
+        {departure ? (
+          <>
+            {/* Departure variant: route line, then small uppercase line tag. */}
+            <div className="mt-0.5 truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', fontFamily: 'inherit' }}>
+              {`${from} → ${to}`}
+            </div>
+            <div className="mt-1 truncate" style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', fontFamily: 'inherit' }}>
+              {line}
+            </div>
+          </>
+        ) : (
+          // Recent-trips variant: title is the route itself, so demote the
+          // line name to a small uppercase tag for clear visual hierarchy.
+          <div className="mt-1.5 truncate" style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', fontFamily: 'inherit' }}>
+            {line}
+          </div>
         )}
       </div>
     </button>

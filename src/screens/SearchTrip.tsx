@@ -64,6 +64,14 @@ export default function SearchTrip() {
   const [pickerField, setPickerField] = useState<'from' | 'to' | null>(null)
   const [showResults, setShowResults] = useState(false)
 
+  // Validation state — surfaced when the user taps "See Schedule" with an
+  // empty or duplicate field. Mirrors the GO Transit website's behaviour:
+  // red error caption + the offending field briefly shakes / turns red.
+  // `tick` is incremented on each failed attempt so the shake re-fires even
+  // if the field is already in the error state.
+  const [errors, setErrors] = useState<{ from: boolean; to: boolean; same: boolean }>({ from: false, to: false, same: false })
+  const [shakeTick, setShakeTick] = useState(0)
+
   // If we arrived here via a path that wants the results sheet to auto-open
   // (e.g. Landing's "Next Departure" card, a Saved Trip), seed the form from
   // the chosen route and open the sheet. The flag is consumed once.
@@ -152,7 +160,16 @@ export default function SearchTrip() {
   }
 
   const handleSearch = () => {
-    if (!from || !to || from === to) return  // button is disabled in this case anyway
+    // Invalid form: flag the empty/duplicate fields, trigger the shake, and
+    // bail out without navigating. Bumping `shakeTick` re-runs the animation
+    // even if the same field was already in the error state.
+    const same = !!from && !!to && from === to
+    if (!from || !to || same) {
+      setErrors({ from: !from, to: !to || same, same })
+      setShakeTick(t => t + 1)
+      return
+    }
+    setErrors({ from: false, to: false, same: false })
     const key = getRouteKeyFromStations(from, to)
     setSelectedRoute(key)
     if (useNow) {
@@ -176,8 +193,14 @@ export default function SearchTrip() {
   }
 
   const handleStationSelect = (station: string) => {
-    if (pickerField === 'from') setFrom(station)
-    else if (pickerField === 'to') setTo(station)
+    if (pickerField === 'from') {
+      setFrom(station)
+      // Clear the corresponding error as soon as the user picks a value.
+      setErrors(e => ({ ...e, from: false, same: station === to ? e.same : false }))
+    } else if (pickerField === 'to') {
+      setTo(station)
+      setErrors(e => ({ ...e, to: false, same: station === from ? e.same : false }))
+    }
     setPickerField(null)
   }
 
@@ -188,51 +211,87 @@ export default function SearchTrip() {
     : selectedDate?.sublabel ?? ''
 
   return (
-    <div className="min-h-full relative" style={{ background: 'var(--surface-primary)' }}>
+    // Outer is pinned to the viewport (height 100% of .screen, overflow
+    // hidden) so the absolutely-positioned overlays — station picker,
+    // time-picker sheet, and the results sheet — resolve their `bottom: 0`
+    // and `height: %` against the visible area, not the scroll-grown form
+    // content. The scrollable form lives in its own inner container.
+    <div className="relative" style={{ background: 'var(--surface-primary)', height: '100%', overflow: 'hidden' }}>
+      <div className="absolute inset-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
       <NavHeader title="Plan Your Trip" showBack />
 
       <div className="px-5">
-        {/* From/To fields */}
+        {/* From/To fields. Each is wrapped in a keyed div so the shake
+            animation can be re-triggered on every failed See-Schedule tap.
+            Error state styles the field with a red border + light red tint
+            and surfaces an inline caption beneath, à la the GO Transit web
+            booking form. */}
         <div className="relative">
-          <button
-            className="pressable w-full rounded-2xl overflow-hidden mb-1 text-left"
-            style={{ background: 'var(--surface-green-soft)', border: '1.5px solid var(--border-green)' }}
-            onClick={() => setPickerField('from')}
-          >
-            <div className="px-4 pt-2.5 pb-0.5">
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-green)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>From</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-4 pb-3">
-              <LocationPin size={18} color="#357a1e" strokeWidth={2} />
-              <span style={{ fontSize: 15, fontFamily: 'inherit', fontWeight: 600, color: from ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                {from || 'GO station, stop, address or place'}
-              </span>
-            </div>
-          </button>
+          <div key={`from-shake-${shakeTick}-${errors.from}`} className={errors.from ? 'field-shake' : ''}>
+            <button
+              className="pressable w-full rounded-2xl overflow-hidden text-left"
+              style={{
+                background: errors.from ? 'var(--surface-error-soft)' : 'var(--surface-green-soft)',
+                border: `1.5px solid ${errors.from ? 'var(--border-error)' : 'var(--border-green)'}`,
+                transition: 'background 200ms ease, border-color 200ms ease',
+              }}
+              onClick={() => setPickerField('from')}
+            >
+              <div className="px-4 pt-2.5 pb-0.5">
+                <span style={{ fontSize: 11, fontWeight: 700, color: errors.from ? 'var(--accent-error)' : 'var(--accent-green)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>From</span>
+              </div>
+              <div className="flex items-center gap-2.5 px-4 pb-3">
+                <LocationPin size={18} color={errors.from ? 'var(--accent-error)' : '#357a1e'} strokeWidth={2} />
+                <span style={{ fontSize: 15, fontFamily: 'inherit', fontWeight: 600, color: from ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  {from || 'GO station, stop, address or place'}
+                </span>
+              </div>
+            </button>
+          </div>
+          {errors.from && (
+            <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-error)', fontFamily: 'inherit', marginTop: 4, marginLeft: 4 }}>
+              Please enter the departure
+            </p>
+          )}
 
           <div
-            className="pressable absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full flex items-center justify-center"
+            className="pressable absolute right-3 z-10 w-10 h-10 rounded-full flex items-center justify-center"
             onClick={handleSwap}
-            style={{ background: '#357a1e', boxShadow: '0 2px 10px rgba(53,122,30,0.4)', cursor: 'pointer' }}
+            style={{
+              top: 'calc(50% - 8px)',
+              transform: 'translateY(-50%)',
+              background: '#357a1e', boxShadow: '0 2px 10px rgba(53,122,30,0.4)', cursor: 'pointer',
+            }}
           >
             <SwapIcon size={18} color="white" strokeWidth={2.5} />
           </div>
 
-          <button
-            className="pressable w-full rounded-2xl overflow-hidden text-left"
-            style={{ background: 'var(--surface-green-soft)', border: '1.5px solid var(--border-green)' }}
-            onClick={() => setPickerField('to')}
-          >
-            <div className="px-4 pt-2.5 pb-0.5">
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent-green)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>To</span>
-            </div>
-            <div className="flex items-center gap-2.5 px-4 pb-3">
-              <LocationPin size={18} color="#357a1e" strokeWidth={2} />
-              <span style={{ fontSize: 15, fontFamily: 'inherit', fontWeight: 600, color: to ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                {to || 'GO station, stop, address or place'}
-              </span>
-            </div>
-          </button>
+          <div key={`to-shake-${shakeTick}-${errors.to}`} className={errors.to ? 'field-shake mt-1' : 'mt-1'}>
+            <button
+              className="pressable w-full rounded-2xl overflow-hidden text-left"
+              style={{
+                background: errors.to ? 'var(--surface-error-soft)' : 'var(--surface-green-soft)',
+                border: `1.5px solid ${errors.to ? 'var(--border-error)' : 'var(--border-green)'}`,
+                transition: 'background 200ms ease, border-color 200ms ease',
+              }}
+              onClick={() => setPickerField('to')}
+            >
+              <div className="px-4 pt-2.5 pb-0.5">
+                <span style={{ fontSize: 11, fontWeight: 700, color: errors.to ? 'var(--accent-error)' : 'var(--accent-green)', textTransform: 'uppercase', letterSpacing: '0.8px', fontFamily: 'inherit' }}>To</span>
+              </div>
+              <div className="flex items-center gap-2.5 px-4 pb-3">
+                <LocationPin size={18} color={errors.to ? 'var(--accent-error)' : '#357a1e'} strokeWidth={2} />
+                <span style={{ fontSize: 15, fontFamily: 'inherit', fontWeight: 600, color: to ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                  {to || 'GO station, stop, address or place'}
+                </span>
+              </div>
+            </button>
+          </div>
+          {errors.to && (
+            <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-error)', fontFamily: 'inherit', marginTop: 4, marginLeft: 4 }}>
+              {errors.same ? 'Pick a different destination' : 'Please enter the destination'}
+            </p>
+          )}
         </div>
 
         {/* Now / Schedule toggle */}
@@ -357,21 +416,24 @@ export default function SearchTrip() {
           {!useNow && <ChevronDown size={18} color="var(--text-muted)" />}
         </button>
 
+        {/* Always reads "See Schedule" — when the form is invalid the button
+            stays visually muted but is still tappable so the user gets
+            actionable feedback (red field + caption + shake) instead of
+            silent inaction. Matches the GO Transit web booking pattern. */}
         <button
-          className={canSearch ? 'pressable w-full mt-4 py-4 rounded-2xl text-white font-bold text-lg' : 'w-full mt-4 py-4 rounded-2xl text-white font-bold text-lg'}
+          className="pressable w-full mt-4 py-4 rounded-2xl"
           style={{
             background: canSearch ? '#357a1e' : 'var(--surface-secondary)',
             color: canSearch ? '#ffffff' : 'var(--text-muted)',
             fontSize: 16, fontWeight: 800, fontFamily: 'inherit',
             boxShadow: canSearch ? '0 4px 16px rgba(53,122,30,0.3)' : 'none',
             border: canSearch ? 'none' : '1px solid var(--border-color)',
-            cursor: canSearch ? 'pointer' : 'not-allowed',
-            transition: 'background 200ms ease, color 200ms ease',
+            transition: 'background 200ms ease, color 200ms ease, box-shadow 200ms ease',
           }}
-          disabled={!canSearch}
           onClick={handleSearch}
+          aria-disabled={!canSearch}
         >
-          {canSearch ? 'See Schedule' : (!from && !to ? 'Pick a From and To station' : from === to ? 'Pick a different destination' : !from ? 'Pick a From station' : 'Pick a To station')}
+          See Schedule
         </button>
       </div>
 
@@ -390,6 +452,7 @@ export default function SearchTrip() {
         </div>
       </div>
       <div className="h-8" />
+      </div>{/* end scrollable inner */}
 
       {/* ── Time picker bottom sheet ─────────────────────────────────────── */}
       {showTimeSheet && (

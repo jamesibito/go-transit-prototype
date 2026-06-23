@@ -14,7 +14,7 @@ import path from 'path'
 import fs from 'fs'
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
-const BASE = 'http://localhost:5174'
+const BASE = process.env.GO_PORT ? `http://localhost:${process.env.GO_PORT}` : 'http://localhost:5174'
 const OUT = '/Users/Design/Downloads/Design Workspace/Projects/Portfolio/go-transit-prototype/public/case-study/after-bare'
 const PHONE_SELECTOR = '.phone-shell'
 
@@ -80,21 +80,33 @@ async function run() {
   await stripPhoneShell(page)
   await shot(page, 'search-trip.png')
 
-  // ── 3. SEARCH RESULTS ────────────────────────────────────────
-  console.log('[3/8] Search Results')
-  await clickText(page, 'Search')
+  // ── 3. SEARCH RESULTS (schedule bottom sheet) ────────────────
+  // v4.7+ removed the standalone results page — tap a Recent trips
+  // card to auto-open the bottom sheet; wait past the 900 ms skeleton.
+  console.log('[3/8] Search Results (schedule sheet)')
+  await page.evaluate(() => {
+    const btns = Array.from(document.querySelectorAll('button'))
+    const card = btns.find(b => /GO\s*→/.test(b.textContent || '') && b.offsetWidth > 200 && b.offsetHeight > 60)
+    card?.click()
+  })
+  await sleep(1500)
   await stripPhoneShell(page)
   await shot(page, 'search-results.png')
 
   // ── 4. TRIP DETAILS ──────────────────────────────────────────
+  // Click a departure card *inside* the visible sheet so we don't hit
+  // the recent-trip rows behind it.
   console.log('[4/8] Trip Details')
   await page.evaluate(() => {
-    const cards = document.querySelectorAll('[class*="pressable"], button')
-    for (const c of cards) {
-      if (c.textContent?.includes('AM') || c.textContent?.includes('PM')) { c.click(); break }
-    }
+    const sheet = document.querySelector('[style*="translateY(0"][style*="height"]')
+    const scope = sheet || document
+    const trip = Array.from(scope.querySelectorAll('button')).find(b => {
+      const t = b.textContent || ''
+      return /\d{1,2}:\d{2}\s*(AM|PM).*\d{1,2}:\d{2}\s*(AM|PM)/.test(t) && b.offsetWidth > 200 && b.offsetHeight > 60
+    })
+    trip?.click()
   })
-  await sleep(800)
+  await sleep(900)
   await stripPhoneShell(page)
   await shot(page, 'trip-details.png')
 

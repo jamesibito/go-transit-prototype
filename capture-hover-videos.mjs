@@ -25,7 +25,7 @@ import path from 'path'
 import fs from 'fs'
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
-const BASE = 'http://localhost:5174'
+const BASE = process.env.GO_PORT ? `http://localhost:${process.env.GO_PORT}` : 'http://localhost:5174'
 const OUT = '/Users/Design/Downloads/Design Workspace/Projects/Portfolio/go-transit-prototype/public/case-study/after-bare/videos'
 const PHONE_SELECTOR = '.phone-shell'
 
@@ -109,34 +109,41 @@ async function run() {
     await sleep(900)
   })
 
-  // ── 2. JOURNEY 2 — Search results ────────────────────────────
-  console.log('[2/6] journey-2-search.mp4 (Search results)')
+  // ── 2. JOURNEY 2 — Schedule sheet slide-up ───────────────────
+  // Show the new bottom-sheet interaction: the rider taps a Recent
+  // trips row, the sheet slides up over Plan Your Trip, the loading
+  // skeleton resolves into the trip list. Captures the actual new
+  // pattern instead of the removed "Search Results" page.
+  console.log('[2/6] journey-2-search.mp4 (Schedule sheet)')
   await page.goto(BASE, { waitUntil: 'networkidle0' })
   await sleep(800)
   await clickText(page, 'Plan a New Trip')
-  await clickText(page, 'Search')
-  await sleep(600)
   await stripPhoneShell(page)
   await record(page, 'journey-2-search.mp4', async () => {
-    await sleep(800)
-    await page.evaluate(async () => {
-      const el = document.querySelector('.phone-shell .scroll-container, .phone-shell')
-      if (!el) return
-      for (let i = 0; i <= 25; i++) {
-        el.scrollTop = (300 * i) / 25
-        await new Promise(r => setTimeout(r, 25))
-      }
+    await sleep(600) // hold on the form before tapping
+    await page.evaluate(() => {
+      const btns = Array.from(document.querySelectorAll('button'))
+      const card = btns.find(b => /GO\s*→/.test(b.textContent || '') && b.offsetWidth > 200 && b.offsetHeight > 60)
+      card?.click()
     })
-    await sleep(900)
+    // Sheet animates up (~380 ms) → skeleton holds (~900 ms) → trips
+    // render. Total visible: ~2.6 s of meaningful motion.
+    await sleep(2600)
   })
 
   // ── 3. JOURNEY 3 — Trip details scroll ───────────────────────
+  // The sheet is open from step 2. Tap a trip card inside it to push
+  // through to Trip Details, then scroll to reveal the new map and
+  // stop list.
   console.log('[3/6] journey-3-details.mp4 (Trip details scroll)')
   await page.evaluate(() => {
-    const cards = document.querySelectorAll('[class*="pressable"], button')
-    for (const c of cards) {
-      if (c.textContent?.includes('AM') || c.textContent?.includes('PM')) { c.click(); break }
-    }
+    const sheet = document.querySelector('[style*="translateY(0"][style*="height"]')
+    const scope = sheet || document
+    const trip = Array.from(scope.querySelectorAll('button')).find(b => {
+      const t = b.textContent || ''
+      return /\d{1,2}:\d{2}\s*(AM|PM).*\d{1,2}:\d{2}\s*(AM|PM)/.test(t) && b.offsetWidth > 200 && b.offsetHeight > 60
+    })
+    trip?.click()
   })
   await sleep(900)
   await stripPhoneShell(page)

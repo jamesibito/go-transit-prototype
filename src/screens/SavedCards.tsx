@@ -30,17 +30,17 @@ function CardLogo({ type, size = 30 }: { type: 'visa' | 'mastercard'; size?: num
   )
 }
 
-export default function SavedCards() {
+export default function SavedCards({ forceAddForm, forceConfirmDelete }: { forceAddForm?: boolean; forceConfirmDelete?: string } = {}) {
   const { prestoConnected, prestoBalance, showToast } = useNav()
   const [cards, setCards] = useState<CardInfo[]>([
     { id: 'c1', type: 'visa', last4: '4242', expiry: '08/27', isDefault: true },
     { id: 'c2', type: 'mastercard', last4: '8910', expiry: '03/28', isDefault: false },
   ])
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [showAddForm, setShowAddForm] = useState(forceAddForm ?? false)
   const [newCardNumber, setNewCardNumber] = useState('')
   const [newCardExpiry, setNewCardExpiry] = useState('')
   const [newCardCvv, setNewCardCvv] = useState('')
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(forceConfirmDelete ?? null)
 
   const handleSetDefault = (id: string) => {
     setCards(prev => prev.map(c => ({ ...c, isDefault: c.id === id })))

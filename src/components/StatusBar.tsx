@@ -1,7 +1,7 @@
 /**
  * Realistic iOS 17+ Status Bar
- * Pixel-accurate signal, WiFi, and battery icons matching Apple's HIG.
- * Live clock updates every minute.
+ * Pixel-accurate signal, WiFi, and battery glyphs matching Apple's HIG
+ * proportions. Live clock updates every 15s.
  */
 import { useState, useEffect } from 'react'
 
@@ -15,7 +15,7 @@ function useCurrentTime() {
   }
   const [time, setTime] = useState(fmt)
   useEffect(() => {
-    const id = setInterval(() => setTime(fmt()), 15_000) // update every 15s for responsiveness
+    const id = setInterval(() => setTime(fmt()), 15_000)
     return () => clearInterval(id)
   }, [])
   return time
@@ -25,33 +25,63 @@ export default function StatusBar() {
   const time = useCurrentTime()
   return (
     <div className="status-bar">
-      <span style={{ fontSize: 15, fontWeight: 600, fontFamily: '-apple-system, "SF Pro Text", "Helvetica Neue", sans-serif', letterSpacing: '-0.3px' }}>
+      <span
+        style={{
+          fontSize: 16,
+          fontWeight: 600,
+          fontFamily: '-apple-system, "SF Pro Text", "Helvetica Neue", sans-serif',
+          letterSpacing: '-0.02em',
+          fontVariantNumeric: 'tabular-nums',
+          fontFeatureSettings: '"tnum"',
+        }}
+      >
         {time}
       </span>
-      <div className="flex items-center gap-[7px]">
-        {/* Cellular signal bars — iOS style: 4 rounded bars with progressive heights */}
-        <svg width="17" height="11" viewBox="0 0 17 11" fill="none">
-          <rect x="0" y="7" width="3" height="4" rx="1" fill="currentColor" />
-          <rect x="4.5" y="4.5" width="3" height="6.5" rx="1" fill="currentColor" />
-          <rect x="9" y="2" width="3" height="9" rx="1" fill="currentColor" />
-          <rect x="13.5" y="0" width="3" height="11" rx="1" fill="currentColor" opacity="0.3" />
+
+      <div className="flex items-center" style={{ gap: 6 }}>
+        {/* Cellular — 4 ascending bars, all filled at full signal */}
+        <svg width="18" height="11" viewBox="0 0 18 11" fill="currentColor" aria-hidden>
+          <rect x="0" y="7.5" width="3" height="3.5" rx="0.8" />
+          <rect x="4.5" y="5" width="3" height="6" rx="0.8" />
+          <rect x="9" y="2.5" width="3" height="8.5" rx="0.8" />
+          <rect x="13.5" y="0" width="3" height="11" rx="0.8" />
         </svg>
 
-        {/* WiFi — iOS style: concentric arcs with a dot */}
-        <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
-          <path d="M7.5 3.2c2.1 0 4 .8 5.4 2.1l1.1-1.2C12.3 2.5 10 1.5 7.5 1.5S2.7 2.5 1 4.1l1.1 1.2C3.5 4 5.4 3.2 7.5 3.2z" fill="currentColor" />
-          <path d="M7.5 6c1.3 0 2.5.5 3.4 1.3l1.1-1.2C10.8 5 9.2 4.3 7.5 4.3S4.2 5 3 6.1l1.1 1.2C5 6.5 6.2 6 7.5 6z" fill="currentColor" />
-          <circle cx="7.5" cy="9.5" r="1.5" fill="currentColor" />
+        {/* WiFi — three concentric arcs + dot, round-capped for a clean solid read */}
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" aria-hidden>
+          <path
+            d="M2.1 4.4a8.7 8.7 0 0 1 11.8 0"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+          />
+          <path
+            d="M4.5 6.9a5.2 5.2 0 0 1 7 0"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+          />
+          <circle cx="8" cy="9.6" r="1.35" fill="currentColor" />
         </svg>
 
-        {/* Battery — iOS style: rounded rect with cap nub */}
-        <svg width="27" height="12" viewBox="0 0 27 12" fill="none">
-          {/* Outer shell */}
-          <rect x="0.5" y="0.5" width="22" height="11" rx="2.5" stroke="currentColor" strokeWidth="1" opacity="0.35" />
-          {/* Inner fill */}
-          <rect x="2" y="2" width="19" height="8" rx="1.5" fill="currentColor" />
-          {/* Battery cap */}
-          <path d="M24 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.4" />
+        {/* Battery — rounded shell, terminal nub, inset fill (iOS proportions) */}
+        <svg width="27.4" height="13" viewBox="0 0 27.4 13" fill="none" aria-hidden>
+          <rect
+            x="0.6"
+            y="0.6"
+            width="23.5"
+            height="11.8"
+            rx="3.4"
+            stroke="currentColor"
+            strokeWidth="1.1"
+            opacity="0.4"
+          />
+          <rect x="2.1" y="2.1" width="20.5" height="8.8" rx="2.1" fill="currentColor" />
+          <path
+            d="M25.6 4.4c.9.35.9 3.85 0 4.2v-4.2Z"
+            fill="currentColor"
+            opacity="0.4"
+          />
         </svg>
       </div>
     </div>

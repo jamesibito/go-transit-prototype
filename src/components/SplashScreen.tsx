@@ -6,14 +6,15 @@ import { GOLogo } from './Icons'
  * Full GO green background with a white GO logo, centered.
  * Mounted inside the phone shell so it doesn't bleed onto the marketing page.
  */
-export default function SplashScreen() {
+export default function SplashScreen({ forceVisible }: { forceVisible?: boolean } = {}) {
   const [phase, setPhase] = useState<'visible' | 'fading' | 'gone'>('visible')
 
   useEffect(() => {
+    if (forceVisible) return
     const t1 = setTimeout(() => setPhase('fading'), 1400)
     const t2 = setTimeout(() => setPhase('gone'), 1800)
     return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [])
+  }, [forceVisible])
 
   if (phase === 'gone') return null
 

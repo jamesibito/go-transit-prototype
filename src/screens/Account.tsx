@@ -105,14 +105,14 @@ function EditModal({ label, value, onSave, onCancel, type = 'text' }: EditModalP
   )
 }
 
-export default function Account() {
+export default function Account({ forceEditing }: { forceEditing?: { field: string; value: string; type?: string } } = {}) {
   const { showToast, goHome } = useNav()
 
   const [name, setName] = useState('John Smith')
   const [email, setEmail] = useState('john.smith@email.com')
   const [phone, setPhone] = useState('+1 (416) 555-0192')
   const [address, setAddress] = useState('Mississauga, ON')
-  const [editing, setEditing] = useState<{ field: string; value: string; type?: string } | null>(null)
+  const [editing, setEditing] = useState<{ field: string; value: string; type?: string } | null>(forceEditing ?? null)
 
   const memberSince = 'March 2024'
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase()

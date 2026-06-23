@@ -11,7 +11,10 @@ import path from 'path'
 import fs from 'fs'
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
-const BASE = 'http://localhost:5174'
+// Vite's first preference is 5173, but other prototypes in this workspace
+// frequently claim it first, so the GO Transit dev server lands on 5174.
+// Override here if your local port is different.
+const BASE = process.env.GO_PORT ? `http://localhost:${process.env.GO_PORT}` : 'http://localhost:5174'
 const OUT = '/Users/Design/Downloads/Design Workspace/Projects/Portfolio/go-transit-prototype/public/case-study/after'
 const PHONE_SELECTOR = '.phone-shell'
 
@@ -67,23 +70,35 @@ async function run() {
   await clickText(page, 'Plan a New Trip')
   await shot(page, 'search-trip.png')
 
-  // ── 3. SEARCH RESULTS ────────────────────────────────────────
-  console.log('[3/8] Search Results')
-  await clickText(page, 'Search')
+  // ── 3. SEARCH RESULTS (schedule bottom sheet) ────────────────
+  // v4.7+ removed the standalone results page. Tapping a Recent trips
+  // card from SearchTrip fires handleHistoryClick, which seeds From/To
+  // and auto-opens the bottom sheet. Wait past the 900 ms loading
+  // skeleton before we shoot.
+  console.log('[3/8] Search Results (schedule sheet)')
+  await page.evaluate(() => {
+    const btns = Array.from(document.querySelectorAll('button'))
+    const card = btns.find(b => /GO\s*→/.test(b.textContent || '') && b.offsetWidth > 200 && b.offsetHeight > 60)
+    card?.click()
+  })
+  await sleep(1500)
   await shot(page, 'search-results.png')
 
   // ── 4. TRIP DETAILS ──────────────────────────────────────────
+  // Click a departure card inside the now-visible sheet (the sheet uses
+  // a translateY(0) transform). Match both departure AND arrival times
+  // so we don't accidentally click a recent-trip row in the form behind.
   console.log('[4/8] Trip Details')
-  // click first result card
   await page.evaluate(() => {
-    const cards = document.querySelectorAll('[class*="pressable"], button')
-    for (const c of cards) {
-      if (c.textContent?.includes('AM') || c.textContent?.includes('PM')) {
-        c.click(); break
-      }
-    }
+    const sheet = document.querySelector('[style*="translateY(0"][style*="height"]')
+    const scope = sheet || document
+    const trip = Array.from(scope.querySelectorAll('button')).find(b => {
+      const t = b.textContent || ''
+      return /\d{1,2}:\d{2}\s*(AM|PM).*\d{1,2}:\d{2}\s*(AM|PM)/.test(t) && b.offsetWidth > 200 && b.offsetHeight > 60
+    })
+    trip?.click()
   })
-  await sleep(800)
+  await sleep(900)
   await shot(page, 'trip-details.png')
 
   // ── 5. FARES ─────────────────────────────────────────────────
@@ -152,21 +167,30 @@ async function run() {
   // Check if we navigated somewhere; if not, go buy a ticket first
   const url = page.url()
   if (url === BASE || url === BASE + '/') {
-    // Reset and go through flow in dark mode to get a ticket
+    // Reset and go through flow in dark mode to get a ticket. Same
+    // post-v4.7 pattern: recent-trip tap to open sheet, then click a
+    // departure inside the sheet.
     await clickText(page, 'Plan a New Trip')
-    await clickText(page, 'Search')
-    await sleep(400)
     await page.evaluate(() => {
-      const cards = document.querySelectorAll('[class*="pressable"], button')
-      for (const c of cards) {
-        if (c.textContent?.includes('AM') || c.textContent?.includes('PM')) { c.click(); break }
-      }
+      const btns = Array.from(document.querySelectorAll('button'))
+      const card = btns.find(b => /GO\s*→/.test(b.textContent || '') && b.offsetWidth > 200 && b.offsetHeight > 60)
+      card?.click()
     })
-    await sleep(600)
+    await sleep(1500)
+    await page.evaluate(() => {
+      const sheet = document.querySelector('[style*="translateY(0"][style*="height"]')
+      const scope = sheet || document
+      const trip = Array.from(scope.querySelectorAll('button')).find(b => {
+        const t = b.textContent || ''
+        return /\d{1,2}:\d{2}\s*(AM|PM).*\d{1,2}:\d{2}\s*(AM|PM)/.test(t) && b.offsetWidth > 200 && b.offsetHeight > 60
+      })
+      trip?.click()
+    })
+    await sleep(800)
     await clickText(page, 'Buy E-Ticket')
     await sleep(400)
     await clickText(page, 'Pay $')
-    await page.waitForTimeout(2000)
+    await sleep(2000)
     await clickText(page, 'Done')
     await sleep(600)
     await page.evaluate(() => {

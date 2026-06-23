@@ -111,6 +111,17 @@ export default function ExportScreens() {
       minHeight: '100vh',
       fontFamily: '"Avenir", "Avenir Next", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
     }}>
+      {/* Full-width header — also acts as a sacrificial first row for the Figma
+          capture tool, which drops the topmost row behind its overlay toolbar. */}
+      <div style={{ width: '100%', flexBasis: '100%', padding: '8px 0 16px' }}>
+        <h1 style={{ fontSize: 34, fontWeight: 800, margin: 0, color: dark ? '#fff' : '#1a1d21', letterSpacing: '-0.5px' }}>
+          GO Transit — App Screens
+        </h1>
+        <p style={{ fontSize: 16, margin: '6px 0 0', color: dark ? '#aaa' : '#555' }}>
+          Redesigned mobile app · 10 key screens
+        </p>
+      </div>
+
       <ScreenWithContext dark={dark}>
         <ScreenShell label="Landing / Home" dark={dark}><Landing /></ScreenShell>
       </ScreenWithContext>

@@ -1,4 +1,5 @@
 import React from 'react'
+import StatusBar from './components/StatusBar'
 import Landing from './screens/Landing'
 import SearchTrip from './screens/SearchTrip'
 import TripDetails from './screens/TripDetails'
@@ -130,20 +131,7 @@ function ScreenShell({
           boxShadow: '0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08)',
         }}
       >
-        {/* Status bar */}
-        <div className="status-bar">
-          <span style={{ fontSize: 15, fontWeight: 700, fontFamily: 'inherit', letterSpacing: '-0.2px' }}>9:41</span>
-          <div className="flex items-center gap-1.5">
-            <svg width="17" height="12" viewBox="0 0 17 12"><rect x="0" y="4" width="3" height="8" rx="0.8" fill="currentColor"/><rect x="4.5" y="2.5" width="3" height="9.5" rx="0.8" fill="currentColor"/><rect x="9" y="1" width="3" height="11" rx="0.8" fill="currentColor"/><rect x="13.5" y="0" width="3" height="12" rx="0.8" fill="currentColor" opacity="0.25"/></svg>
-            <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.5C10.2 2.5 12.2 3.4 13.6 4.9L15 3.5C13.2 1.4 10.7 0.1 8 0.1C5.3 0.1 2.8 1.4 1 3.5L2.4 4.9C3.8 3.4 5.8 2.5 8 2.5Z" fill="currentColor"/><path d="M8 5.5C9.5 5.5 10.8 6.1 11.8 7.1L13.2 5.7C11.8 4.2 9.9 3.5 8 3.5C6.1 3.5 4.2 4.3 2.8 5.7L4.2 7.1C5.2 6.1 6.5 5.5 8 5.5Z" fill="currentColor"/><circle cx="8" cy="10" r="1.8" fill="currentColor"/></svg>
-            <div className="flex items-center">
-              <div style={{ width: 25, height: 12, borderRadius: 3, border: '1.5px solid currentColor', opacity: 0.45, padding: '1.5px', display: 'flex', alignItems: 'center' }}>
-                <div style={{ width: '85%', height: '100%', borderRadius: 1.5, background: 'currentColor' }}/>
-              </div>
-              <div style={{ width: 2, height: 5, borderRadius: '0 1px 1px 0', background: 'currentColor', opacity: 0.35, marginLeft: 1 }}/>
-            </div>
-          </div>
-        </div>
+        <StatusBar />
 
         <NavContext.Provider value={ctx}>
           <div style={{ position: 'absolute', inset: 0, paddingTop: 48, overflowY: 'auto', overflowX: 'hidden', background: dark ? '#1a1d21' : '#ffffff' }}>
@@ -214,6 +202,7 @@ function Grid({ children, dark }: { children: React.ReactNode; dark?: boolean })
       width: 1896, boxSizing: 'border-box',
       background: dark ? '#0d0f11' : '#eef0ee', minHeight: '100vh', alignItems: 'flex-start',
       fontFamily: '"Avenir", "Avenir Next", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
+      alignSelf: 'flex-start',
     }}>
       {children}
       {/* note: SacrificeRow is inserted by each set right after the header */}
